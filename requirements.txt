@@ -1,0 +1,30 @@
+# Core NLP and ML Libraries
+nltk>=3.8
+spacy>=3.5.0
+transformers>=4.21.0
+torch>=1.12.0
+tensorflow>=2.9.0
+scikit-learn>=1.1.0
+
+# Data Manipulation and Analysis
+pandas>=1.5.0
+numpy>=1.23.0
+
+# Visualization
+matplotlib>=3.5.0
+seaborn>=0.11.0
+plotly>=5.10.0
+
+# Jupyter and Development
+jupyter>=1.0.0
+ipywidgets>=8.0.0
+
+# Text Processing
+regex>=2022.7.0
+beautifulsoup4>=4.11.0
+requests>=2.28.0
+
+# Additional Utilities
+tqdm>=4.64.0
+datasets>=2.4.0
+evaluate>=0.2.0
