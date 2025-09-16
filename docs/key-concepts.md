@@ -249,7 +249,22 @@ The transformer architecture has revolutionized NLP by providing a powerful, par
 
 **Feed-Forward Networks**
 - Point-wise fully connected layers
-- Typically has expansion and contraction (d_model → d_ff → d_model)
+- Typically has expansion and contraction:
+
+```mermaid
+graph LR
+    A[d_model] --> B[d_ff]
+    B --> C[d_model]
+    
+    style A fill:#e1f5fe,stroke:#333,stroke-width:2px
+    style B fill:#ffecb3,stroke:#333,stroke-width:2px
+    style C fill:#e1f5fe,stroke:#333,stroke-width:2px
+    
+    subgraph FFN["Feed-Forward Network"]
+        D[Expansion → Processing → Contraction]
+    end
+```
+
 - Adds non-linearity and processing capacity
 
 **Residual Connections**
