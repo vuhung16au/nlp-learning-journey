@@ -35,7 +35,7 @@ Think of the encoder-decoder architecture like a human translator:
 
 ### Mathematical Representation
 
-For an input sequence $$ X = [x_1, x_2, ..., x_n] $$ and output sequence $$ Y = [y_1, y_2, ..., y_m] $$:
+For an input sequence $X = [x_1, x_2, ..., x_n]$ and output sequence $Y = [y_1, y_2, ..., y_m]$:
 
 ```
 Encoder: X → c (context vector)

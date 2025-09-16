@@ -46,12 +46,12 @@ Linear algebra forms the foundation of modern NLP, as text is represented using 
 **Matrix Operations**
 - **Matrix Multiplication**: $$ (AB)_{ij} = \sum_k A_{ik} B_{kj} $$
 - **Transpose**: $$ (A^T)_{ij} = A_{ji} $$
-- **Trace**: $$ \text{tr}(A) = \sum_i A_{ii} $$ (sum of diagonal elements)
+- **Trace**: $\text{tr}(A) = \sum_i A_{ii}$ (sum of diagonal elements)
 
 **Important Matrix Properties**
 - **Orthogonal Matrix**: $$ AA^T = A^T A = I $$
 - **Symmetric Matrix**: $$ A = A^T $$
-- **Positive Definite**: $$ x^T A x > 0 $$ for all non-zero x
+- **Positive Definite**: $x^T A x > 0$ for all non-zero x
 
 ### Eigenvalues and Eigenvectors
 
@@ -80,7 +80,7 @@ Probability theory is essential for language modeling and uncertainty quantifica
 - `P(A ∪ B) = P(A) + P(B)` if A and B are disjoint
 
 **Conditional Probability**
-- $$ P(A|B) = \frac{P(A \cap B)}{P(B)} $$ when $P(B) > 0$
+- $P(A|B) = \frac{P(A \cap B)}{P(B)}$ when $P(B) > 0$
 - Foundation of language modeling: $P(\text{word}|\text{context})$
 
 **Bayes' Theorem**
@@ -113,7 +113,7 @@ Probability theory is essential for language modeling and uncertainty quantifica
 
 **Categorical Distribution**
 - Used for word prediction in language models
-- PMF: $$ P(X = k) = p_k $$ where $k \in \{1,2,...,K\}$
+- PMF: $P(X = k) = p_k$ where $k \in \{1,2,...,K\}$
 
 ## Statistics
 
@@ -170,8 +170,8 @@ Calculus is essential for optimization in machine learning and neural networks.
 - Chain Rule: $$ (f(g(x)))' = f'(g(x)) \cdot g'(x) $$
 
 **Common Derivatives for NLP**
-- $$ \frac{d}{dx}(\log x) = \frac{1}{x} $$ (used in log-likelihood)
-- $$ \frac{d}{dx}(e^x) = e^x $$ (used in softmax)
+- $\frac{d}{dx}(\log x) = \frac{1}{x}$ (used in log-likelihood)
+- $\frac{d}{dx}(e^x) = e^x$ (used in softmax)
 - $$ \frac{d}{dx}(\text{sigmoid}(x)) = \text{sigmoid}(x)(1 - \text{sigmoid}(x)) $$
 
 ### Partial Derivatives
@@ -354,7 +354,7 @@ Matrix decomposition techniques are fundamental for dimensionality reduction and
 
 **Dimensionality Reduction**
 - Project data onto top k principal components
-- $$ Y = XQ_k $$ where $Q_k$ contains k eigenvectors
+- $Y = XQ_k$ where $Q_k$ contains k eigenvectors
 - Preserves k/n proportion of total variance
 
 ### Non-negative Matrix Factorization (NMF)
@@ -390,7 +390,7 @@ Understanding the mathematics behind neural networks is crucial for modern NLP.
 - Computationally efficient, addresses vanishing gradients
 
 **GELU (Gaussian Error Linear Unit)**
-- $$ \text{GELU}(x) = x \cdot \Phi(x) $$ where $\Phi$ is CDF of standard normal
+- $\text{GELU}(x) = x \cdot \Phi(x)$ where $\Phi$ is CDF of standard normal
 - Approximation: $$ \text{GELU}(x) \approx 0.5x\left(1 + \tanh\left(\sqrt{\frac{2}{\pi}}(x + 0.044715x^3)\right)\right) $$
 - Used in modern transformers
 
