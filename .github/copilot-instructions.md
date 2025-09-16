@@ -246,11 +246,11 @@ graph TD
     C --> D[Decoder]
     D --> E[Output Sequence]
 
-    style A fill:#fff,stroke:#333,color:#333
-    style B fill:#f9f,stroke:#333,stroke-width:2px
-    style C fill:#ccf,stroke:#333,stroke-width:2px
-    style D fill:#f9f,stroke:#333,stroke-width:2px
-    style E fill:#fff,stroke:#333,color:#333
+    style A fill:#FFFFFF,stroke:#582C67,color:#333,stroke-width:2px
+    style B fill:#582C67,stroke:#C60C30,color:#FFFFFF,stroke-width:2px
+    style C fill:#C60C30,stroke:#582C67,color:#FFFFFF,stroke-width:2px
+    style D fill:#582C67,stroke:#C60C30,color:#FFFFFF,stroke-width:2px
+    style E fill:#FFFFFF,stroke:#582C67,color:#333,stroke-width:2px
 
     subgraph Notes
         sub1[Input Sequence - variable length]
@@ -260,11 +260,12 @@ graph TD
 ```
 
 **Mermaid Styling Guidelines:**
-- Use color coding to highlight different components (fill colors)
-- Apply stroke styling for emphasis (stroke-width, stroke colors)
+- Use the specified color palette: Purple (#582C67), White (#FFFFFF), Red (#C60C30)
+- Apply gradients between these colors for visual variety
+- Use stroke styling for emphasis (stroke-width, stroke colors)
 - Include contextual notes using subgraphs when helpful
 - Use descriptive node labels that clearly explain the concept
-- Choose colors that enhance understanding of the information flow
+- Maintain readability with appropriate text color contrast
 
 ### LaTeX Mathematical Notation
 
