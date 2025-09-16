@@ -98,6 +98,14 @@ Practical applications across industries:
 - Education and research applications
 - Social media and content analysis
 
+### 🔄 **[Recurrent Neural Networks (RNNs)](docs/RNN.md)**
+Comprehensive guide to RNNs and the transformer revolution:
+- Mathematical foundations and implementation details
+- RNN challenges: vanishing gradients and sequential processing
+- Why Transformers are a breakthrough in NLP
+- Python implementations from scratch and with PyTorch
+- Performance comparisons and historical evolution
+
 ### 🐍 **[Python Libraries](docs/python-libraries.md)**
 Essential tools and libraries:
 - Core NLP libraries (NLTK, spaCy, transformers)
