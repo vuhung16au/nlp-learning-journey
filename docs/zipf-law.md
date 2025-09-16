@@ -6,25 +6,21 @@ Zipf's Law is one of the most fundamental and fascinating empirical laws in ling
 
 **Zipf's Law** states that in a collection of natural language text, the frequency of any word is inversely proportional to its rank in the frequency table. In mathematical terms:
 
-```
-f(r) = k / r^α
-```
+$$ f(r) = \frac{k}{r^\alpha} $$
 
 Where:
-- `f(r)` = frequency of the word with rank r
-- `r` = rank of the word (1st most frequent, 2nd most frequent, etc.)
-- `k` = a constant (typically the frequency of the most frequent word)
-- `α` = the Zipfian exponent (approximately 1 for natural languages)
+- $f(r)$ = frequency of the word with rank r
+- $r$ = rank of the word (1st most frequent, 2nd most frequent, etc.)
+- $k$ = a constant (typically the frequency of the most frequent word)
+- $\alpha$ = the Zipfian exponent (approximately 1 for natural languages)
 
 ### Simplified Form
 
 In its simplest form, Zipf's Law can be expressed as:
 
-```
-f(r) = f₁ / r
-```
+$$ f(r) = \frac{f_1}{r} $$
 
-Where `f₁` is the frequency of the most frequent word.
+Where $f_1$ is the frequency of the most frequent word.
 
 ## Historical Background
 
@@ -44,19 +40,15 @@ George Kingsley Zipf was an American linguist and philologist who worked at Harv
 
 Zipf's Law is a specific case of a power law distribution. When plotted on a log-log scale, the relationship appears as a straight line with slope approximately -1:
 
-```
-log(f(r)) = log(k) - α × log(r)
-```
+$$ \log(f(r)) = \log(k) - \alpha \times \log(r) $$
 
 ### Zipf-Mandelbrot Distribution
 
 A generalized version of Zipf's Law includes an additional parameter:
 
-```
-f(r) = k / (r + β)^α
-```
+$$ f(r) = \frac{k}{(r + \beta)^\alpha} $$
 
-Where `β` is a constant that accounts for the finite size of the vocabulary.
+Where $\beta$ is a constant that accounts for the finite size of the vocabulary.
 
 ## Applications in NLP and Text Analysis
 
@@ -346,10 +338,8 @@ def vocabulary_growth_prediction(df, corpus_size_multipliers=[2, 5, 10]):
 ### 1. Heaps' Law (Vocabulary Growth)
 
 Describes how vocabulary size grows with corpus size:
-```
-V(N) = K * N^β
-```
-Where V(N) is vocabulary size for corpus of N words.
+$$ V(N) = K \times N^\beta $$
+Where $V(N)$ is vocabulary size for corpus of $N$ words.
 
 ### 2. Benford's Law
 
