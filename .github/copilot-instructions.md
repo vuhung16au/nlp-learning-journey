@@ -226,4 +226,90 @@ python -c "from sklearn.feature_extraction.text import TfidfVectorizer; print('s
 jupyter lab                                        # Interactive development
 ```
 
+## Documentation Standards
+
+### Mermaid Diagrams
+
+**ALWAYS use Mermaid diagrams instead of plaintext diagrams for visual representations.**
+
+**Prohibited - DO NOT use plaintext diagrams:**
+```
+Input Sequence → [Encoder] → Context Vector → [Decoder] → Output Sequence
+    (variable)                  (fixed-size)                (variable)
+```
+
+**Required - Use Mermaid with proper styling:**
+```mermaid
+graph TD
+    A[Input Sequence] --> B[Encoder]
+    B --> C[Context Vector]
+    C --> D[Decoder]
+    D --> E[Output Sequence]
+
+    style A fill:#fff,stroke:#333,color:#333
+    style B fill:#f9f,stroke:#333,stroke-width:2px
+    style C fill:#ccf,stroke:#333,stroke-width:2px
+    style D fill:#f9f,stroke:#333,stroke-width:2px
+    style E fill:#fff,stroke:#333,color:#333
+
+    subgraph Notes
+        sub1[Input Sequence - variable length]
+        sub2[Context Vector - fixed-size]
+        sub3[Output Sequence - variable length]
+    end
+```
+
+**Mermaid Styling Guidelines:**
+- Use color coding to highlight different components (fill colors)
+- Apply stroke styling for emphasis (stroke-width, stroke colors)
+- Include contextual notes using subgraphs when helpful
+- Use descriptive node labels that clearly explain the concept
+- Choose colors that enhance understanding of the information flow
+
+### LaTeX Mathematical Notation
+
+**For inline LaTeX expressions, use single dollar signs:**
+```markdown
+Correct: `$h_t$: Hidden state at time step t`
+Correct: The probability `$P(y_t | x_1, ..., x_t)$` represents...
+Wrong: `$$h_t$$: Hidden state at time step t`
+```
+
+**For complex or standalone formulas, use double dollar signs in separate paragraphs:**
+```markdown
+The forward pass equations are defined as:
+
+$$ f_t = \sigma(W_f \cdot [h_{t-1}, x_t] + b_f) $$
+
+$$ \alpha_t(i) = P(x_1, x_2, ..., x_t, q_t = s_i | \lambda) $$
+
+$$ f(r) = \frac{k}{r^\alpha} $$
+```
+
+**LaTeX Best Practices:**
+- Use inline math (`$...$`) for variables, short expressions, and mathematical terms within sentences
+- Use block math (`$$...$$`) for complex formulas, equations, and mathematical expressions that deserve emphasis
+- Always put block formulas in separate paragraphs for better readability
+- Include text explanations before or after complex formulas to provide context
+- Use consistent notation throughout the repository
+
+**Example of proper mathematical documentation:**
+```markdown
+The LSTM cell uses three gates to control information flow. The forget gate `$f_t$` determines what information to discard:
+
+$$ f_t = \sigma(W_f \cdot [h_{t-1}, x_t] + b_f) $$
+
+Where `$\sigma$` is the sigmoid function, `$W_f$` is the weight matrix, and `$b_f$` is the bias vector.
+```
+
+### Visual Documentation Requirements
+
+1. **No Plaintext Diagrams**: Always use Mermaid for flowcharts, architecture diagrams, and process flows
+2. **Color Coding**: Use consistent colors to represent similar concepts across diagrams
+3. **Mathematical Precision**: Use LaTeX for all mathematical expressions and formulas
+4. **Contextual Notes**: Include explanatory text around diagrams and formulas
+5. **Accessibility**: Ensure diagrams and formulas have accompanying text descriptions
+
+These standards apply to all Markdown files in the repository, including documentation in `docs/`, README files, and example notebooks.
+
 Remember: This is an educational repository focused on learning NLP concepts. Always prioritize working examples and clear documentation over complex tooling or optimization.
