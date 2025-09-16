@@ -52,9 +52,24 @@ Where:
 
 The encoder-decoder architecture creates an **information bottleneck** at the context vector:
 
-```
-Input Sequence → [Encoder] → Context Vector → [Decoder] → Output Sequence
-    (variable)                  (fixed-size)                (variable)
+```mermaid
+graph TD
+    A[Input Sequence] --> B[Encoder]
+    B --> C[Context Vector]
+    C --> D[Decoder]
+    D --> E[Output Sequence]
+
+    style A fill:#fff,stroke:#333,color:#333
+    style B fill:#f9f,stroke:#333,stroke-width:2px
+    style C fill:#ccf,stroke:#333,stroke-width:2px
+    style D fill:#f9f,stroke:#333,stroke-width:2px
+    style E fill:#fff,stroke:#333,color:#333
+
+    subgraph Notes
+        sub1[Input Sequence - variable length]
+        sub2[Context Vector - fixed-size]
+        sub3[Output Sequence - variable length]
+    end
 ```
 
 This bottleneck forces the model to:

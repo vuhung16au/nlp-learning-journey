@@ -722,8 +722,16 @@ For a simple RNN with weight matrix W with eigenvalue λ_max:
 
 All information about the sequence must be compressed into a fixed-size vector h_t:
 
-```
-I(sequence) → h_t ∈ ℝ^d
+```mermaid
+graph LR
+    A[Input Sequence] --> B[Hidden State h_t ∈ ℝᵈ]
+    
+    style A fill:#fff,stroke:#333,color:#333
+    style B fill:#ffcccc,stroke:#333,stroke-width:2px
+    
+    subgraph Note
+        C[Fixed-size vector compression<br/>causes information loss]
+    end
 ```
 
 Where d is the hidden dimension. This creates:

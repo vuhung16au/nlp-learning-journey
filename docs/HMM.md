@@ -113,8 +113,18 @@ The choice of hidden states depends on the specific NLP task:
 Different transition structures serve different purposes:
 
 **Linear Chain HMM**:
-```
-s₁ → s₂ → s₃ → ... → sₙ
+```mermaid
+graph LR
+    A[s₁] --> B[s₂]
+    B --> C[s₃]
+    C --> D[...]
+    D --> E[sₙ]
+    
+    style A fill:#e3f2fd,stroke:#333,stroke-width:2px
+    style B fill:#e3f2fd,stroke:#333,stroke-width:2px
+    style C fill:#e3f2fd,stroke:#333,stroke-width:2px
+    style D fill:#e3f2fd,stroke:#333,stroke-width:2px
+    style E fill:#e3f2fd,stroke:#333,stroke-width:2px
 ```
 Used for sequential labeling where order matters.
 
@@ -724,9 +734,27 @@ class SpeechRecognitionHMM:
 ### Why HMMs Were Superseded
 
 #### 1. **Neural Networks Revolution**
-```
-Traditional Pipeline:     Raw Text → Feature Engineering → HMM → Output
-Neural Network Pipeline:  Raw Text → Learned Representations → Output
+```mermaid
+graph TD
+    subgraph Traditional["Traditional Pipeline"]
+        A1[Raw Text] --> B1[Feature Engineering]
+        B1 --> C1[HMM]
+        C1 --> D1[Output]
+    end
+    
+    subgraph Neural["Neural Network Pipeline"]
+        A2[Raw Text] --> B2[Learned Representations]
+        B2 --> C2[Output]
+    end
+    
+    style A1 fill:#fff2cc,stroke:#333,stroke-width:2px
+    style B1 fill:#ffe6cc,stroke:#333,stroke-width:2px
+    style C1 fill:#ffcccc,stroke:#333,stroke-width:2px
+    style D1 fill:#e6f3ff,stroke:#333,stroke-width:2px
+    
+    style A2 fill:#fff2cc,stroke:#333,stroke-width:2px
+    style B2 fill:#ccffcc,stroke:#333,stroke-width:2px
+    style C2 fill:#e6f3ff,stroke:#333,stroke-width:2px
 ```
 
 #### 2. **Conditional Random Fields (CRFs)**
