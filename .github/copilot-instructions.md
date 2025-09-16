@@ -66,6 +66,60 @@ The repository uses these essential libraries:
 
 **IMPORTANT**: Some notebooks (like tokenization.ipynb) require internet access to download pre-trained models from Hugging Face. In offline environments, these cells will fail with network errors - this is expected behavior.
 
+### Runtime Environment Detection
+All Jupyter notebooks in this repository include automatic runtime environment detection to ensure compatibility across Google Colab, Kaggle, and local environments. Use this pattern in new notebooks:
+
+```python
+# Environment Detection and Setup
+import sys
+import subprocess
+
+# Detect the runtime environment
+IS_COLAB = "google.colab" in sys.modules
+IS_KAGGLE = "kaggle_secrets" in sys.modules
+IS_LOCAL = not (IS_COLAB or IS_KAGGLE)
+
+print(f"Environment detected:")
+print(f"  - Local: {IS_LOCAL}")
+print(f"  - Google Colab: {IS_COLAB}")
+print(f"  - Kaggle: {IS_KAGGLE}")
+
+# Platform-specific system setup
+if IS_COLAB:
+    print("\nSetting up Google Colab environment...")
+    !apt update -qq
+    !apt install -y -qq libpq-dev
+elif IS_KAGGLE:
+    print("\nSetting up Kaggle environment...")
+    # Kaggle usually has most packages pre-installed
+else:
+    print("\nSetting up local environment...")
+
+# Install required packages for this notebook
+required_packages = [
+    "nltk",
+    "spacy",
+    "pandas",
+    "matplotlib",
+    "seaborn"
+]
+
+print("\nInstalling required packages...")
+for package in required_packages:
+    if IS_COLAB or IS_KAGGLE:
+        !pip install -q {package}
+    else:
+        subprocess.run([sys.executable, "-m", "pip", "install", "-q", package], 
+                      capture_output=True)
+    print(f"✓ {package}")
+```
+
+**Key Benefits:**
+- **Automatic Detection**: No manual configuration needed
+- **Platform Optimization**: Different installation methods for each platform
+- **Error Prevention**: Prevents common environment-specific issues
+- **Consistent Experience**: Same notebook works across all platforms
+
 ## Validation Scenarios
 
 ### Always Test These Scenarios After Making Changes:
@@ -110,7 +164,29 @@ The repository uses these essential libraries:
    "
    ```
 
-**Manual Validation Requirement**: After any significant changes, run all four validation tests to ensure the environment remains functional.
+5. **Runtime Environment Detection Test** (should complete in under 1 second):
+   ```bash
+   python -c "
+   import sys
+   
+   # Test the runtime environment detection pattern
+   IS_COLAB = 'google.colab' in sys.modules
+   IS_KAGGLE = 'kaggle_secrets' in sys.modules  
+   IS_LOCAL = not (IS_COLAB or IS_KAGGLE)
+   
+   print('Runtime environment detection:')
+   print(f'  - Local: {IS_LOCAL}')
+   print(f'  - Google Colab: {IS_COLAB}')
+   print(f'  - Kaggle: {IS_KAGGLE}')
+   
+   # Verify exactly one environment is detected
+   detected_count = sum([IS_LOCAL, IS_COLAB, IS_KAGGLE])
+   assert detected_count == 1, f'Expected exactly 1 environment, got {detected_count}'
+   print('✓ Environment detection working correctly!')
+   "
+   ```
+
+**Manual Validation Requirement**: After any significant changes, run all five validation tests to ensure the environment remains functional.
 
 ## Repository Structure and Navigation
 
@@ -156,6 +232,13 @@ The repository uses these essential libraries:
    jupyter nbconvert examples/your_notebook.ipynb --to pdf  # requires LaTeX
    ```
 
+**Notebook Development Standards:**
+- **Always include runtime environment detection** as the first code cell
+- **Use platform-specific package installation** methods shown in the Runtime Environment Detection section
+- **Test on multiple environments** when possible (local, Colab, Kaggle)
+- **Handle network dependencies gracefully** - wrap model downloads in try-catch blocks
+- **Include clear error messages** for missing dependencies or network issues
+
 ### For Code Development:
 1. Always run the validation scenarios after changes
 2. Use virtual environments for isolation:
@@ -176,6 +259,9 @@ The repository uses these essential libraries:
 - **Import errors**: Re-run the complete bootstrap sequence
 - **spaCy model not found**: Run `python -m spacy download en_core_web_sm`
 - **NLTK data missing**: Run the NLTK download command from bootstrap steps
+- **Runtime environment detection fails**: Verify the detection pattern is implemented correctly
+- **Package installation errors**: Check if using correct installation method for detected environment
+- **Mixed environment detection**: Ensure only one of IS_LOCAL, IS_COLAB, IS_KAGGLE is True
 
 ### Performance Expectations:
 - **Environment setup**: 5-8 minutes total
@@ -200,6 +286,9 @@ The repository uses these essential libraries:
 - Follow Python PEP 8 style guidelines
 - Include comprehensive docstrings and comments in notebooks
 - Ensure all cells in notebooks can execute successfully (except for network-dependent cells in offline environments)
+- **Always include runtime environment detection** in new notebooks
+- **Use platform-specific installation methods** to ensure compatibility across Colab, Kaggle, and local environments
+- **Test notebooks on multiple platforms** when possible to ensure cross-platform compatibility
 
 ## Limitations and Known Issues
 
@@ -221,6 +310,7 @@ python -c "import nltk, spacy, transformers, torch, tensorflow, sklearn, pandas,
 python -c "import spacy; nlp = spacy.load('en_core_web_sm'); print('spaCy OK')"
 python -c "from nltk.tokenize import word_tokenize; print('NLTK OK')"
 python -c "from sklearn.feature_extraction.text import TfidfVectorizer; print('sklearn OK')"
+python -c "import sys; IS_COLAB = 'google.colab' in sys.modules; IS_KAGGLE = 'kaggle_secrets' in sys.modules; IS_LOCAL = not (IS_COLAB or IS_KAGGLE); assert sum([IS_LOCAL, IS_COLAB, IS_KAGGLE]) == 1; print('Environment detection OK')"
 
 # Start development environment
 jupyter lab                                        # Interactive development
