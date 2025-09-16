@@ -60,7 +60,17 @@ Where:
 **3. Feed-Forward Networks**
 - Point-wise fully connected layers
 - Adds non-linearity and processing capacity
-- Typically expands then contracts: d_model → d_ff → d_model
+- Typically expands then contracts:
+
+```mermaid
+graph LR
+    A[d_model] --> B[d_ff]
+    B --> C[d_model]
+    
+    style A fill:#e1f5fe,stroke:#333,stroke-width:2px
+    style B fill:#ffecb3,stroke:#333,stroke-width:2px
+    style C fill:#e1f5fe,stroke:#333,stroke-width:2px
+```
 
 **4. Layer Normalization and Residual Connections**
 - Stabilizes training in deep networks

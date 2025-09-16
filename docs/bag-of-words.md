@@ -740,7 +740,27 @@ The Bag of Words model represents a fundamental stepping stone in the journey of
 
 While BoW laid the groundwork for text representation, the field has evolved significantly:
 
-**Historical Progression**: BoW → TF-IDF → Word Embeddings (Word2Vec, GloVe) → Contextual Embeddings (BERT, GPT) → Large Language Models
+**Historical Progression**: 
+```mermaid
+graph LR
+    A[BoW] --> B[TF-IDF]
+    B --> C[Word Embeddings<br/>Word2Vec, GloVe]
+    C --> D[Contextual Embeddings<br/>BERT, GPT]
+    D --> E[Large Language Models]
+    
+    style A fill:#ffebee,stroke:#333,stroke-width:2px
+    style B fill:#fff3e0,stroke:#333,stroke-width:2px
+    style C fill:#e8f5e8,stroke:#333,stroke-width:2px
+    style D fill:#e3f2fd,stroke:#333,stroke-width:2px
+    style E fill:#f3e5f5,stroke:#333,stroke-width:2px
+    
+    subgraph Timeline["Evolution of Text Representation"]
+        F[1950s-1980s: Statistical Methods]
+        G[1990s-2000s: Machine Learning]
+        H[2010s: Deep Learning]
+        I[2020s: Foundation Models]
+    end
+```
 
 **Continued Relevance**: Despite these advances, BoW principles remain embedded in modern approaches. Many sophisticated models still use frequency-based features, and understanding BoW helps in comprehending these more complex systems.
 
