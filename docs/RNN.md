@@ -92,14 +92,10 @@ The same weight matrices (W_hh, W_xh, W_hy) are used at every time step:
 RNNs are trained using Backpropagation Through Time, an extension of standard backpropagation:
 
 **Loss Function:**
-```
-L = Σ_{t=1}^T L_t(y_t, ŷ_t)
-```
+$$ L = \sum_{t=1}^T L_t(y_t, \hat{y}_t) $$
 
 **Gradient Computation:**
-```
-∂L/∂W_hh = Σ_{t=1}^T Σ_{k=1}^t (∂L_t/∂h_t) * (∏_{j=k+1}^t ∂h_j/∂h_{j-1}) * (∂h_k/∂W_hh)
-```
+$$ \frac{\partial L}{\partial W_{hh}} = \sum_{t=1}^T \sum_{k=1}^t \left(\frac{\partial L_t}{\partial h_t}\right) \times \left(\prod_{j=k+1}^t \frac{\partial h_j}{\partial h_{j-1}}\right) \times \left(\frac{\partial h_k}{\partial W_{hh}}\right) $$
 
 This creates a **chain of dependencies** where gradients must propagate through all previous time steps.
 
@@ -122,52 +118,37 @@ The basic RNN architecture described above, suitable for:
 LSTMs address the vanishing gradient problem through a more complex gating mechanism:
 
 **Forget Gate:**
-```
-f_t = σ(W_f * [h_{t-1}, x_t] + b_f)
-```
+$$ f_t = \sigma(W_f \cdot [h_{t-1}, x_t] + b_f) $$
 
 **Input Gate:**
-```
-i_t = σ(W_i * [h_{t-1}, x_t] + b_i)
-C̃_t = tanh(W_C * [h_{t-1}, x_t] + b_C)
-```
+$$ i_t = \sigma(W_i \cdot [h_{t-1}, x_t] + b_i) $$
+$$ \tilde{C}_t = \tanh(W_C \cdot [h_{t-1}, x_t] + b_C) $$
 
 **Cell State Update:**
-```
-C_t = f_t * C_{t-1} + i_t * C̃_t
-```
+$$ C_t = f_t \odot C_{t-1} + i_t \odot \tilde{C}_t $$
 
 **Output Gate:**
-```
-o_t = σ(W_o * [h_{t-1}, x_t] + b_o)
-h_t = o_t * tanh(C_t)
-```
+$$ o_t = \sigma(W_o \cdot [h_{t-1}, x_t] + b_o) $$
+$$ h_t = o_t \odot \tanh(C_t) $$
 
-Where σ represents the sigmoid function.
+Where $\sigma$ represents the sigmoid function.
 
 ### 3. Gated Recurrent Unit (GRU)
 
 GRUs simplify LSTMs while maintaining similar performance:
 
 **Reset Gate:**
-```
-r_t = σ(W_r * [h_{t-1}, x_t] + b_r)
-```
+$$ r_t = \sigma(W_r \cdot [h_{t-1}, x_t] + b_r) $$
 
 **Update Gate:**
-```
-z_t = σ(W_z * [h_{t-1}, x_t] + b_z)
-```
+$$ z_t = \sigma(W_z \cdot [h_{t-1}, x_t] + b_z) $$
 
 **New Memory Content:**
-```
-h̃_t = tanh(W_h * [r_t * h_{t-1}, x_t] + b_h)
+$$ \tilde{h}_t = \tanh(W_h \cdot [r_t \odot h_{t-1}, x_t] + b_h) $$
 ```
 
 **Hidden State Update:**
-```
-h_t = (1 - z_t) * h_{t-1} + z_t * h̃_t
-```
+$$ h_t = (1 - z_t) \odot h_{t-1} + z_t \odot \tilde{h}_t $$
 
 ## Implementation Examples
 
@@ -605,9 +586,7 @@ print(generated_text)
 
 During backpropagation through time, gradients are computed as:
 
-```
-∂L/∂W = Σ_{t=1}^T ∂L_t/∂W_t
-```
+$$ \frac{\partial L}{\partial W} = \sum_{t=1}^T \frac{\partial L_t}{\partial W_t} $$
 
 For the hidden-to-hidden weights, this becomes:
 
@@ -704,11 +683,9 @@ RNNs must process sequences step by step, which creates several issues:
 
 The effective context window of an RNN can be approximated by analyzing how much information from time step t-k contributes to the current state h_t.
 
-For a simple RNN with weight matrix W with eigenvalue λ_max:
+For a simple RNN with weight matrix W with eigenvalue $\lambda_{\max}$:
 
-```
-|∂h_t/∂h_{t-k}| ≈ |λ_max|^k
-```
+$$ \left|\frac{\partial h_t}{\partial h_{t-k}}\right| \approx |\lambda_{\max}|^k $$
 
 **Practical Implications:**
 - Information from distant time steps decays exponentially
@@ -763,7 +740,7 @@ Where:
 - All attention weights computed simultaneously
 - No sequential dependencies like RNNs
 - Fully leverages GPU parallelization
-- Training time scales with O(1) instead of O(T)
+- Training time scales with $O(1)$ instead of $O(T)$
 
 **2. Direct Access to All Positions**
 - Every position can directly attend to every other position

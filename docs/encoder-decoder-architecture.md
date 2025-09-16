@@ -35,7 +35,7 @@ Think of the encoder-decoder architecture like a human translator:
 
 ### Mathematical Representation
 
-For an input sequence **X = [x₁, x₂, ..., xₙ]** and output sequence **Y = [y₁, y₂, ..., yₘ]**:
+For an input sequence $$ X = [x_1, x_2, ..., x_n] $$ and output sequence $$ Y = [y_1, y_2, ..., y_m] $$:
 
 ```
 Encoder: X → c (context vector)
@@ -97,42 +97,34 @@ Consider a book summarization task:
 
 **Encoder Function:**
 ```
-h₁, h₂, ..., hₙ = Encoder(x₁, x₂, ..., xₙ)
-c = f(h₁, h₂, ..., hₙ)
+$$ h_1, h_2, ..., h_n = \text{Encoder}(x_1, x_2, ..., x_n) $$
+$$ c = f(h_1, h_2, ..., h_n) $$
 ```
 
 **Decoder Function:**
-```
-P(Y|X) = ∏ᵢ₌₁ᵐ P(yᵢ | y₁, ..., yᵢ₋₁, c)
-```
+$$ P(Y|X) = \prod_{i=1}^m P(y_i | y_1, ..., y_{i-1}, c) $$
 
 Where:
-- **hᵢ** are hidden states from the encoder
+- **$h_i$** are hidden states from the encoder
 - **c** is the context vector (often the final hidden state)
-- **P(yᵢ | ...)** is the probability of generating token yᵢ
+- **$P(y_i | ...)$** is the probability of generating token $y_i$
 
 ### RNN-Based Encoder-Decoder
 
 **Encoder (forward pass):**
-```
-hₜ = f(xₜ, hₜ₋₁)  for t = 1, ..., n
-c = hₙ  (or learned function of all hidden states)
-```
+$$ h_t = f(x_t, h_{t-1}) \text{ for } t = 1, ..., n $$
+$$ c = h_n \text{ (or learned function of all hidden states)} $$
 
 **Decoder (autoregressive generation):**
-```
-s₀ = c  (initialize decoder state with context)
-sₜ = g(yₜ₋₁, sₜ₋₁)  for t = 1, ..., m
-P(yₜ | y₁, ..., yₜ₋₁, c) = softmax(Wsₜ + b)
-```
+$$ s_0 = c \text{ (initialize decoder state with context)} $$
+$$ s_t = g(y_{t-1}, s_{t-1}) \text{ for } t = 1, ..., m $$
+$$ P(y_t | y_1, ..., y_{t-1}, c) = \text{softmax}(Ws_t + b) $$
 
 ### Loss Function
 
 The model is typically trained to minimize the negative log-likelihood:
 
-```
-L = -∑ᵢ₌₁ᵐ log P(yᵢ | y₁, ..., yᵢ₋₁, c)
-```
+$$ L = -\sum_{i=1}^m \log P(y_i | y_1, ..., y_{i-1}, c) $$
 
 This encourages the model to assign high probability to the correct output sequences.
 
@@ -157,9 +149,9 @@ This encourages the model to assign high probability to the correct output seque
 **Purpose**: Bridge between encoder and decoder
 
 **Variations:**
-- **Last Hidden State**: c = hₙ (simple but lossy)
-- **Weighted Average**: c = ∑ᵢ αᵢhᵢ (attention mechanism)
-- **Learned Representation**: c = tanh(W[h₁; h₂; ...; hₙ] + b)
+- **Last Hidden State**: $c = h_n$ (simple but lossy)
+- **Weighted Average**: $c = \sum_i \alpha_i h_i$ (attention mechanism)
+- **Learned Representation**: $c = \tanh(W[h_1; h_2; ...; h_n] + b)$
 
 ### 3. Decoder Components
 

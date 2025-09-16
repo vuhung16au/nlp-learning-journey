@@ -34,13 +34,11 @@ Think of attention like human reading comprehension:
 
 At its core, attention computes a **weighted average** of values, where the weights determine how much attention to pay to each input element:
 
-```
-output = Σᵢ αᵢ · vᵢ
-```
+$$ \text{output} = \sum_i \alpha_i \cdot v_i $$
 
 Where:
-- `αᵢ` = attention weight for element i (sums to 1)
-- `vᵢ` = value vector for element i
+- $\alpha_i$ = attention weight for element i (sums to 1)
+- $v_i$ = value vector for element i
 - The output is a weighted combination of all values
 
 ## Motivation and Intuition
@@ -95,44 +93,30 @@ Where:
 ### Step-by-Step Mathematical Process
 
 **Step 1: Compute Compatibility Scores**
-```
-eᵢⱼ = score(qᵢ, kⱼ)
-```
+$$ e_{ij} = \text{score}(q_i, k_j) $$
 This measures how well query i matches key j.
 
 **Step 2: Normalize with Softmax**
-```
-αᵢⱼ = softmax(eᵢⱼ) = exp(eᵢⱼ) / Σₖ exp(eᵢₖ)
-```
-This ensures attention weights sum to 1: `Σⱼ αᵢⱼ = 1`
+$$ \alpha_{ij} = \text{softmax}(e_{ij}) = \frac{\exp(e_{ij})}{\sum_k \exp(e_{ik})} $$
+This ensures attention weights sum to 1: $\sum_j \alpha_{ij} = 1$
 
 **Step 3: Compute Weighted Sum**
-```
-oᵢ = Σⱼ αᵢⱼ · vⱼ
-```
+$$ o_i = \sum_j \alpha_{ij} \cdot v_j $$
 This produces the output for position i as a weighted combination of all values.
 
 ### Common Scoring Functions
 
 **1. Dot Product**
-```
-score(qᵢ, kⱼ) = qᵢᵀ · kⱼ
-```
+$$ \text{score}(q_i, k_j) = q_i^T \cdot k_j $$
 
 **2. Scaled Dot Product**
-```
-score(qᵢ, kⱼ) = (qᵢᵀ · kⱼ) / √dₖ
-```
+$$ \text{score}(q_i, k_j) = \frac{q_i^T \cdot k_j}{\sqrt{d_k}} $$
 
 **3. Additive (Bahdanau)**
-```
-score(qᵢ, kⱼ) = vᵀ · tanh(Wq · qᵢ + Wk · kⱼ)
-```
+$$ \text{score}(q_i, k_j) = v^T \cdot \tanh(W_q \cdot q_i + W_k \cdot k_j) $$
 
 **4. Multiplicative (Luong)**
-```
-score(qᵢ, kⱼ) = qᵢᵀ · W · kⱼ
-```
+$$ \text{score}(q_i, k_j) = q_i^T \cdot W \cdot k_j $$
 
 ## Types of Attention
 

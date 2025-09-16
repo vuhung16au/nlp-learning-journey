@@ -77,9 +77,7 @@ print(f"Using library: {lev_distance(text1, text2)}")
 
 **Mathematical Definition**:
 For strings `a` and `b` of equal length `n`:
-```
-hamming(a,b) = Σ(i=1 to n) [a[i] ≠ b[i]]
-```
+$$ \text{hamming}(a,b) = \sum_{i=1}^n [a[i] \neq b[i]] $$
 
 **Common Use Cases**:
 - Error detection and correction
@@ -399,9 +397,7 @@ print(f"Using sklearn - similarity: {cos_sim:.3f}, distance: {cos_dist:.3f}")
 
 **Mathematical Definition**:
 For vectors A and B of dimension n:
-```
-euclidean_distance(A, B) = √(Σ(i=1 to n) (A[i] - B[i])²)
-```
+$$ \text{euclidean\_distance}(A, B) = \sqrt{\sum_{i=1}^n (A[i] - B[i])^2} $$
 
 **Common Use Cases**:
 - K-means clustering
@@ -454,9 +450,7 @@ print(f"Euclidean distance between doc 0 and 2: {euclidean_dist_02:.3f}")
 
 **Mathematical Definition**:
 For vectors A and B of dimension n:
-```
-manhattan_distance(A, B) = Σ(i=1 to n) |A[i] - B[i]|
-```
+$$ \text{manhattan\_distance}(A, B) = \sum_{i=1}^n |A[i] - B[i]| $$
 
 **Common Use Cases**:
 - Robust to outliers

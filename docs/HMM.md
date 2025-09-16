@@ -45,50 +45,38 @@ HMMs were revolutionary in NLP because they provided:
 
 Let's define the mathematical components of an HMM:
 
-- **States**: S = {s₁, s₂, ..., sₙ} - Set of hidden states
-- **Observations**: O = {o₁, o₂, ..., oₘ} - Set of possible observations
-- **State Sequence**: Q = q₁, q₂, ..., qₜ - Sequence of hidden states
-- **Observation Sequence**: X = x₁, x₂, ..., xₜ - Sequence of observations
+- **States**: $$ S = \{s_1, s_2, ..., s_n\} $$ - Set of hidden states
+- **Observations**: $$ O = \{o_1, o_2, ..., o_m\} $$ - Set of possible observations
+- **State Sequence**: $$ Q = q_1, q_2, ..., q_t $$ - Sequence of hidden states
+- **Observation Sequence**: $$ X = x_1, x_2, ..., x_t $$ - Sequence of observations
 
-### Model Parameters (λ)
+### Model Parameters ($\lambda$)
 
 An HMM is completely specified by three sets of parameters:
 
-#### 1. Initial State Probabilities (π)
-```
-π = {πᵢ} where πᵢ = P(q₁ = sᵢ)
-```
-The probability that the model starts in state sᵢ.
+#### 1. Initial State Probabilities ($\pi$)
+$$ \pi = \{\pi_i\} \text{ where } \pi_i = P(q_1 = s_i) $$
+The probability that the model starts in state $s_i$.
 
 #### 2. Transition Probabilities (A)
-```
-A = {aᵢⱼ} where aᵢⱼ = P(qₜ₊₁ = sⱼ | qₜ = sᵢ)
-```
-The probability of transitioning from state sᵢ to state sⱼ.
+$$ A = \{a_{ij}\} \text{ where } a_{ij} = P(q_{t+1} = s_j | q_t = s_i) $$
+The probability of transitioning from state $s_i$ to state $s_j$.
 
 #### 3. Emission Probabilities (B)
-```
-B = {bᵢ(oₖ)} where bᵢ(oₖ) = P(xₜ = oₖ | qₜ = sᵢ)
-```
-The probability of observing oₖ when in state sᵢ.
+$$ B = \{b_i(o_k)\} \text{ where } b_i(o_k) = P(x_t = o_k | q_t = s_i) $$
+The probability of observing $o_k$ when in state $s_i$.
 
 ### Mathematical Properties
 
 #### Markov Assumption
-```
-P(qₜ₊₁ | q₁, q₂, ..., qₜ) = P(qₜ₊₁ | qₜ)
-```
+$$ P(q_{t+1} | q_1, q_2, ..., q_t) = P(q_{t+1} | q_t) $$
 
 #### Output Independence Assumption
-```
-P(xₜ | q₁, q₂, ..., qₜ, x₁, x₂, ..., xₜ₋₁) = P(xₜ | qₜ)
-```
+$$ P(x_t | q_1, q_2, ..., q_t, x_1, x_2, ..., x_{t-1}) = P(x_t | q_t) $$
 
 #### Joint Probability
 The probability of observing a sequence X and state sequence Q is:
-```
-P(X, Q | λ) = π(q₁) × ∏ᵢ₌₁ᵀ⁻¹ a(qᵢ, qᵢ₊₁) × ∏ᵢ₌₁ᵀ b(qᵢ, xᵢ)
-```
+$$ P(X, Q | \lambda) = \pi(q_1) \times \prod_{i=1}^{T-1} a(q_i, q_{i+1}) \times \prod_{i=1}^{T} b(q_i, x_i) $$
 
 ## Key Components and Architecture
 
@@ -144,42 +132,50 @@ Ensures model convergence and stability.
 
 ### Problem 1: Likelihood (Evaluation)
 
-**Given**: Model λ = (A, B, π) and observation sequence X
-**Find**: P(X | λ)
+**Given**: Model $\lambda = (A, B, \pi)$ and observation sequence X
+**Find**: $P(X | \lambda)$
 
 **Solution**: Forward Algorithm
 
 The forward algorithm computes the probability of observing the sequence up to time t and being in state i at time t.
 
-```
-Forward variable: αₜ(i) = P(x₁, x₂, ..., xₜ, qₜ = sᵢ | λ)
+Forward variable:
+$$ \alpha_t(i) = P(x_1, x_2, ..., x_t, q_t = s_i | \lambda) $$
 
-Initialization: α₁(i) = πᵢ × bᵢ(x₁)
-Recursion: αₜ₊₁(j) = [∑ᵢ αₜ(i) × aᵢⱼ] × bⱼ(xₜ₊₁)
-Termination: P(X | λ) = ∑ᵢ αₜ(i)
-```
+Initialization:
+$$ \alpha_1(i) = \pi_i \times b_i(x_1) $$
+
+Recursion:
+$$ \alpha_{t+1}(j) = \left[ \sum_i \alpha_t(i) \times a_{ij} \right] \times b_j(x_{t+1}) $$
+
+Termination:
+$$ P(X | \lambda) = \sum_i \alpha_T(i) $$
 
 ### Problem 2: Decoding (Finding Most Likely State Sequence)
 
-**Given**: Model λ and observation sequence X
-**Find**: Most likely state sequence Q*
+**Given**: Model $\lambda$ and observation sequence X
+**Find**: Most likely state sequence $Q^*$
 
 **Solution**: Viterbi Algorithm
 
 The Viterbi algorithm finds the most probable state sequence using dynamic programming.
 
-```
-Viterbi variable: δₜ(i) = max P(q₁, q₂, ..., qₜ₋₁, qₜ = sᵢ, x₁, x₂, ..., xₜ | λ)
+Viterbi variable:
+$$ \delta_t(i) = \max P(q_1, q_2, ..., q_{t-1}, q_t = s_i, x_1, x_2, ..., x_t | \lambda) $$
 
-Initialization: δ₁(i) = πᵢ × bᵢ(x₁)
-Recursion: δₜ₊₁(j) = max[δₜ(i) × aᵢⱼ] × bⱼ(xₜ₊₁)
-Path tracking: ψₜ₊₁(j) = argmax[δₜ(i) × aᵢⱼ]
-```
+Initialization:
+$$ \delta_1(i) = \pi_i \times b_i(x_1) $$
+
+Recursion:
+$$ \delta_{t+1}(j) = \max[\delta_t(i) \times a_{ij}] \times b_j(x_{t+1}) $$
+
+Path tracking:
+$$ \psi_{t+1}(j) = \arg\max[\delta_t(i) \times a_{ij}] $$
 
 ### Problem 3: Learning (Parameter Estimation)
 
 **Given**: Observation sequence X
-**Find**: Model parameters λ* that maximize P(X | λ)
+**Find**: Model parameters $\lambda^*$ that maximize $P(X | \lambda)$
 
 **Solution**: Baum-Welch Algorithm (Forward-Backward)
 
@@ -187,45 +183,39 @@ This is an instance of the Expectation-Maximization (EM) algorithm.
 
 #### E-Step: Compute Expected Values
 
-**Forward variables**: αₜ(i) (as defined above)
+**Forward variables**: $\alpha_t(i)$ (as defined above)
 
 **Backward variables**: 
-```
-βₜ(i) = P(xₜ₊₁, xₜ₊₂, ..., xₜ | qₜ = sᵢ, λ)
+$$ \beta_t(i) = P(x_{t+1}, x_{t+2}, ..., x_T | q_t = s_i, \lambda) $$
 
-Initialization: βₜ(i) = 1
-Recursion: βₜ(i) = ∑ⱼ aᵢⱼ × bⱼ(xₜ₊₁) × βₜ₊₁(j)
-```
+Initialization:
+$$ \beta_T(i) = 1 $$
+
+Recursion:
+$$ \beta_t(i) = \sum_j a_{ij} \times b_j(x_{t+1}) \times \beta_{t+1}(j) $$
 
 **State probabilities**:
-```
-γₜ(i) = P(qₜ = sᵢ | X, λ) = αₜ(i) × βₜ(i) / P(X | λ)
-```
+$$ \gamma_t(i) = P(q_t = s_i | X, \lambda) = \frac{\alpha_t(i) \times \beta_t(i)}{P(X | \lambda)} $$
 
 **Transition probabilities**:
-```
-ξₜ(i,j) = P(qₜ = sᵢ, qₜ₊₁ = sⱼ | X, λ)
-        = αₜ(i) × aᵢⱼ × bⱼ(xₜ₊₁) × βₜ₊₁(j) / P(X | λ)
-```
+$$ \xi_t(i,j) = P(q_t = s_i, q_{t+1} = s_j | X, \lambda) = \frac{\alpha_t(i) \times a_{ij} \times b_j(x_{t+1}) \times \beta_{t+1}(j)}{P(X | \lambda)} $$
 
 #### M-Step: Update Parameters
 
-```
-π̂ᵢ = γ₁(i)
+$$ \hat{\pi}_i = \gamma_1(i) $$
 
-âᵢⱼ = ∑ᵗ₌₁ᵀ⁻¹ ξₜ(i,j) / ∑ᵗ₌₁ᵀ⁻¹ γₜ(i)
+$$ \hat{a}_{ij} = \frac{\sum_{t=1}^{T-1} \xi_t(i,j)}{\sum_{t=1}^{T-1} \gamma_t(i)} $$
 
-b̂ᵢ(vₖ) = ∑ᵗ₌₁ᵀ γₜ(i) × I(xₜ = vₖ) / ∑ᵗ₌₁ᵀ γₜ(i)
-```
+$$ \hat{b}_i(v_k) = \frac{\sum_{t=1}^{T} \gamma_t(i) \times I(x_t = v_k)}{\sum_{t=1}^{T} \gamma_t(i)} $$
 
-where I(xₜ = vₖ) is an indicator function.
+where $I(x_t = v_k)$ is an indicator function.
 
 ## Algorithms for HMM
 
 ### Forward Algorithm (Detailed)
 
-**Purpose**: Compute the likelihood P(X | λ)
-**Complexity**: O(N²T) where N is number of states, T is sequence length
+**Purpose**: Compute the likelihood $P(X | \lambda)$
+**Complexity**: $O(N^2T)$ where N is number of states, T is sequence length
 
 ```python
 def forward_algorithm(observations, A, B, pi):
@@ -266,7 +256,7 @@ def forward_algorithm(observations, A, B, pi):
 ### Viterbi Algorithm (Detailed)
 
 **Purpose**: Find the most likely state sequence
-**Complexity**: O(N²T)
+**Complexity**: $O(N^2T)$
 
 ```python
 def viterbi_algorithm(observations, A, B, pi):
@@ -312,7 +302,7 @@ def viterbi_algorithm(observations, A, B, pi):
 ### Baum-Welch Algorithm (Detailed)
 
 **Purpose**: Learn HMM parameters from observation sequences
-**Complexity**: O(N²T) per iteration
+**Complexity**: $O(N^2T)$ per iteration
 
 ```python
 def baum_welch_algorithm(observations, N, M, max_iterations=100, tolerance=1e-6):
