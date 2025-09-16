@@ -45,10 +45,10 @@ HMMs were revolutionary in NLP because they provided:
 
 Let's define the mathematical components of an HMM:
 
-- **States**: $$ S = \{s_1, s_2, ..., s_n\} $$ - Set of hidden states
-- **Observations**: $$ O = \{o_1, o_2, ..., o_m\} $$ - Set of possible observations
-- **State Sequence**: $$ Q = q_1, q_2, ..., q_t $$ - Sequence of hidden states
-- **Observation Sequence**: $$ X = x_1, x_2, ..., x_t $$ - Sequence of observations
+- **States**: $S = \{s_1, s_2, ..., s_n\}$ - Set of hidden states
+- **Observations**: $O = \{o_1, o_2, ..., o_m\}$ - Set of possible observations
+- **State Sequence**: $Q = q_1, q_2, ..., q_t$ - Sequence of hidden states
+- **Observation Sequence**: $X = x_1, x_2, ..., x_t$ - Sequence of observations
 
 ### Model Parameters ($\lambda$)
 
