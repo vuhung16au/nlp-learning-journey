@@ -44,16 +44,29 @@ BERT's revolutionary approach stems from three fundamental innovations:
 
 ### Mathematical Foundation
 
-BERT's core mathematical operations are based on the transformer's self-attention mechanism:
+BERT's core mathematical operations are based on the transformer's self-attention mechanism. The self-attention mechanism allows each position in the sequence to attend to all positions, enabling bidirectional context understanding.
 
 **Self-Attention Computation:**
+
+The self-attention mechanism computes attention weights and applies them to the value vectors:
+
 $$ \text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V $$
 
+Where $Q$ (queries), $K$ (keys), and $V$ (values) are matrices derived from the input embeddings, and $d_k$ is the dimension of the key vectors used for scaling to prevent vanishing gradients in the softmax function.
+
 **Multi-Head Attention:**
+
+BERT uses multiple attention heads to capture different types of relationships:
+
 $$ \text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, ..., \text{head}_h)W^O $$
 
-Where each head is computed as:
+Where $h$ is the number of attention heads and $W^O$ is a learned output projection matrix that combines information from all heads.
+
+Each individual attention head $i$ is computed as:
+
 $$ \text{head}_i = \text{Attention}(QW_i^Q, KW_i^K, VW_i^V) $$
+
+Where $W_i^Q$, $W_i^K$, and $W_i^V$ are learned projection matrices that transform the input into query, key, and value representations for head $i$.
 
 ## Architecture Overview
 
@@ -210,9 +223,12 @@ graph TD
 4. **Loss Computation**: Cross-entropy loss on predictions
 
 **Mathematical Formulation:**
+
+The Masked Language Model loss function measures how well BERT predicts the original tokens that were masked during training:
+
 $$ L_{MLM} = -\sum_{i \in \mathcal{M}} \log P(x_i | x_{\setminus \mathcal{M}}) $$
 
-Where $\mathcal{M}$ is the set of masked positions.
+Where $\mathcal{M}$ represents the set of masked token positions, $x_i$ is the original token at position $i$, and $x_{\setminus \mathcal{M}}$ denotes all non-masked tokens in the sequence. The probability $P(x_i | x_{\setminus \mathcal{M}})$ represents BERT's prediction of the masked token given the bidirectional context from all unmasked positions.
 
 #### Next Sentence Prediction (NSP)
 
@@ -308,11 +324,18 @@ graph TD
 - Improved understanding of complex grammatical structures
 
 **Mathematical Representation**
-For a word at position $i$, traditional models compute:
+
+The fundamental difference between traditional and bidirectional models lies in how they compute hidden representations. For a word at position $i$ in a sequence, traditional left-to-right models compute:
+
 $$ h_i = f(h_{i-1}, x_i) \quad \text{(left-to-right)} $$
 
-BERT computes:
+Where $h_i$ is the hidden state at position $i$, $h_{i-1}$ is the previous hidden state, and $x_i$ is the input token. This approach only considers context from previous positions.
+
+In contrast, BERT computes bidirectional representations by considering the entire sequence:
+
 $$ h_i = f(x_1, x_2, ..., x_n) \quad \text{(bidirectional)} $$
+
+Where $h_i$ depends on all tokens $x_1$ through $x_n$ in the sequence simultaneously, allowing each position to attend to both left and right context. This bidirectional processing enables BERT to capture richer semantic relationships and better understand word meanings in context.
 
 **Practical Benefits**
 - Better performance on tasks requiring full sentence understanding
@@ -337,22 +360,42 @@ def basic_bert_classification():
     """
     
     # Method 1: Using pipeline (simplest approach)
+    # Note: For better Vietnamese support, use "bert-base-multilingual-cased"
     classifier = pipeline(
         "sentiment-analysis", 
-        model="bert-base-uncased",
+        model="bert-base-uncased",  # For English examples
         return_all_scores=True
     )
     
-    texts = [
+    # English examples
+    english_texts = [
         "BERT is an amazing breakthrough in NLP!",
         "I'm not sure about this approach.",
         "This movie was terrible and boring."
     ]
     
-    results = classifier(texts)
+    # Vietnamese examples (for multilingual BERT demonstration)
+    vietnamese_texts = [
+        "BERT là một đột phá tuyệt vời trong NLP!",
+        "Tôi không chắc chắn về cách tiếp cận này.",
+        "Bộ phim này thật tệ và nhàm chán."
+    ]
+    
+    # Combine for cross-lingual demonstration
+    all_texts = english_texts + vietnamese_texts
+    
+    results = classifier(all_texts)
     
     print("Pipeline Results:")
-    for text, result in zip(texts, results):
+    print("\n=== English Examples ===")
+    for i, (text, result) in enumerate(zip(english_texts, results[:3])):
+        print(f"\nText: {text}")
+        for score in result:
+            print(f"  {score['label']}: {score['score']:.4f}")
+    
+    print("\n=== Vietnamese Examples ===")
+    print("Note: Results depend on model's multilingual capabilities")
+    for i, (text, result) in enumerate(zip(vietnamese_texts, results[3:])):
         print(f"\nText: {text}")
         for score in result:
             print(f"  {score['label']}: {score['score']:.4f}")
@@ -852,6 +895,55 @@ graph TD
 - Specialized for financial domain
 - Pre-trained on financial news and reports
 - Excellent for financial sentiment analysis and document classification
+
+### Multilingual Variants
+
+**Multilingual BERT (mBERT)**
+- Pre-trained on 104 languages simultaneously
+- Enables cross-lingual transfer learning
+- Supports Vietnamese, English, and many other languages
+- Ideal for multilingual applications
+
+**XLM-RoBERTa (XLM-R)**
+- Improved multilingual model based on RoBERTa
+- Pre-trained on 100 languages
+- Better cross-lingual performance than mBERT
+- State-of-the-art for multilingual tasks
+
+**Cross-lingual Example Application:**
+```python
+def multilingual_sentiment_analysis():
+    """
+    Demonstrate cross-lingual sentiment analysis with Vietnamese and English.
+    
+    Example usage for Vietnamese-English cross-lingual tasks.
+    """
+    # Use multilingual BERT for better cross-lingual support
+    classifier = pipeline(
+        "sentiment-analysis",
+        model="bert-base-multilingual-cased",
+        return_all_scores=True
+    )
+    
+    # Vietnamese-English example pairs
+    cross_lingual_examples = [
+        ("My name is John", "Tên tôi là John"),           # Neutral
+        ("I love this product!", "Tôi yêu sản phẩm này!"), # Positive  
+        ("This is terrible", "Điều này thật tệ"),          # Negative
+        ("Thank you very much", "Cảm ơn rất nhiều"),       # Positive
+        ("How are you?", "Bạn khỏe không?")                # Neutral
+    ]
+    
+    print("Cross-lingual Sentiment Analysis:")
+    for english, vietnamese in cross_lingual_examples:
+        eng_result = classifier(english)[0]
+        vie_result = classifier(vietnamese)[0]
+        
+        print(f"\nEnglish: '{english}'")
+        print(f"  Sentiment: {eng_result['label']} ({eng_result['score']:.3f})")
+        print(f"Vietnamese: '{vietnamese}'")
+        print(f"  Sentiment: {vie_result['label']} ({vie_result['score']:.3f})")
+```
 
 ## Real-World Applications
 
