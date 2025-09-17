@@ -10,14 +10,15 @@ The **Attention Mechanism** is arguably the most important concept to grasp befo
 2. [Motivation and Intuition](#motivation-and-intuition)
 3. [Mathematical Foundation](#mathematical-foundation)
 4. [Types of Attention](#types-of-attention)
-5. [Scaled Dot-Product Attention](#scaled-dot-product-attention)
-6. [Multi-Head Attention](#multi-head-attention)
-7. [Self-Attention](#self-attention)
-8. [Implementation from Scratch](#implementation-from-scratch)
-9. [Practical Examples](#practical-examples)
-10. [Attention Visualization](#attention-visualization)
-11. [Connection to Transformers](#connection-to-transformers)
-12. [Best Practices](#best-practices)
+5. [Luong Attention](#luong-attention)
+6. [Scaled Dot-Product Attention](#scaled-dot-product-attention)
+7. [Multi-Head Attention](#multi-head-attention)
+8. [Self-Attention](#self-attention)
+9. [Implementation from Scratch](#implementation-from-scratch)
+10. [Practical Examples](#practical-examples)
+11. [Attention Visualization](#attention-visualization)
+12. [Connection to Transformers](#connection-to-transformers)
+13. [Best Practices](#best-practices)
 
 ## What is Attention?
 
@@ -139,6 +140,141 @@ $$ \text{score}(q_i, k_j) = q_i^T \cdot W \cdot k_j $$
 - Runs multiple attention mechanisms in parallel
 - Each head learns different types of relationships
 - Outputs are concatenated and projected
+
+## Luong Attention
+
+**Luong attention**, also known as **multiplicative attention**, is a streamlined attention mechanism proposed by Minh-Thang Luong et al. in 2015. It simplifies the attention computation while maintaining effectiveness, making it computationally efficient and widely adopted in neural machine translation.
+
+### Key Characteristics
+
+**Simplicity and Efficiency**
+- Uses dot product as the core similarity measure
+- Avoids complex feed-forward networks for scoring
+- Computationally faster than additive attention mechanisms
+
+**Direct Alignment**
+- Computes alignment scores through matrix multiplication
+- Current decoder hidden state directly computes attention weights
+- Immediate application to final prediction without intermediate steps
+
+### Mathematical Foundation
+
+The Luong attention mechanism computes attention using three main variants:
+
+**1. Dot Product (Basic)**
+$$ \text{score}(h_t, \bar{h}_s) = h_t^T \bar{h}_s $$
+
+**2. General (Multiplicative)**
+$$ \text{score}(h_t, \bar{h}_s) = h_t^T W_a \bar{h}_s $$
+
+**3. Concat (Alternative)**
+$$ \text{score}(h_t, \bar{h}_s) = v_a^T \tanh(W_a[h_t; \bar{h}_s]) $$
+
+Where:
+- $h_t$: Current decoder hidden state at time step t
+- $\bar{h}_s$: Encoder hidden state at position s
+- $W_a$: Learned attention weight matrix
+- $v_a$: Learned parameter vector
+
+### Attention Computation Process
+
+```mermaid
+graph TD
+    A["Decoder State h_t<br/>'Tôi'"] --> B[Matrix Multiplication<br/>h_t^T · W_a · h̄_s]
+    C["Encoder States<br/>['My', 'name', 'is']"] --> B
+    B --> D[Alignment Scores<br/>e_t]
+    D --> E[Softmax<br/>α_t = softmax(e_t)]
+    E --> F[Context Vector<br/>c_t = Σ α_ts · h̄_s]
+    F --> G[Final Output<br/>ỹ_t = tanh(W_c[h_t; c_t])]
+
+    style A fill:#FFFFFF,stroke:#582C67,color:#333,stroke-width:2px
+    style B fill:#582C67,stroke:#C60C30,color:#FFFFFF,stroke-width:2px
+    style C fill:#FFFFFF,stroke:#582C67,color:#333,stroke-width:2px
+    style D fill:#C60C30,stroke:#582C67,color:#FFFFFF,stroke-width:2px
+    style E fill:#582C67,stroke:#C60C30,color:#FFFFFF,stroke-width:2px
+    style F fill:#C60C30,stroke:#582C67,color:#FFFFFF,stroke-width:2px
+    style G fill:#FFFFFF,stroke:#582C67,color:#333,stroke-width:2px
+```
+
+### NLP Applications and Relevance
+
+**Neural Machine Translation**
+- Enables direct alignment between source and target sequences
+- Essential for English ↔ Vietnamese translation tasks
+- Provides interpretable attention weights showing word-to-word correspondences
+
+**Sequence-to-Sequence Tasks**
+- Text summarization: attending to relevant source sentences
+- Question answering: focusing on pertinent passage segments
+- Dialogue systems: maintaining context across conversation turns
+
+### Vietnamese/English Translation Example
+
+Consider translating "My name is John" → "Tên tôi là John":
+
+```python
+def luong_attention_translation_example():
+    """Demonstrate Luong attention in English-Vietnamese translation"""
+    
+    # Source: English words and their encoder states
+    english_words = ["My", "name", "is", "John"]
+    vietnamese_words = ["Tên", "tôi", "là", "John"]
+    
+    # When generating Vietnamese "tôi" (position 1)
+    print("Generating Vietnamese 'tôi' using Luong attention:")
+    print(f"English source: {english_words}")
+    print(f"Vietnamese target: {vietnamese_words}")
+    print()
+    
+    # Simulated encoder states and decoder state
+    encoder_states = np.random.normal(0, 1, (4, 6))  # 4 English words, 6-dim
+    decoder_state = np.random.normal(0, 1, 6)        # Current decoder state
+    
+    # Luong attention computation
+    # Using "general" variant: score = h_t^T * W_a * h_s
+    W_a = np.random.normal(0, 0.1, (6, 6))  # Attention weight matrix
+    
+    alignment_scores = []
+    for i, eng_word in enumerate(english_words):
+        # score(h_t, h_s) = h_t^T * W_a * h_s
+        score = decoder_state.T @ W_a @ encoder_states[i]
+        alignment_scores.append(score)
+        print(f"Alignment with '{eng_word}': {score:.3f}")
+    
+    # Softmax normalization
+    alignment_scores = np.array(alignment_scores)
+    attention_weights = np.exp(alignment_scores) / np.sum(np.exp(alignment_scores))
+    
+    print(f"\nAttention weights for 'tôi':")
+    for eng_word, weight in zip(english_words, attention_weights):
+        print(f"  {eng_word:>6}: {weight:.3f}")
+    
+    # Context vector computation
+    context_vector = np.sum(attention_weights.reshape(-1, 1) * encoder_states, axis=0)
+    print(f"\nContext vector shape: {context_vector.shape}")
+    print("✓ Successfully computed attention for Vietnamese generation")
+
+# Example output shows highest attention to "name" when generating "tôi"
+```
+
+### Comparison with Bahdanau Attention
+
+| Aspect | Luong Attention | Bahdanau Attention |
+|--------|----------------|-------------------|
+| **Computation** | $h_t^T W_a \bar{h}_s$ | $v_a^T \tanh(W_a h_t + U_a \bar{h}_s)$ |
+| **Complexity** | Simpler matrix multiplication | Additional feed-forward layer |
+| **Speed** | Faster computation | Slower due to non-linearity |
+| **Performance** | Often better empirical results | Good but generally outperformed |
+| **Usage State** | Current decoder state $h_t$ | Previous decoder state $h_{t-1}$ |
+
+### Why Luong Attention Succeeded
+
+1. **Computational Efficiency**: Direct matrix operations are hardware-optimized
+2. **Empirical Performance**: Consistently outperformed concatenative approaches
+3. **Simplicity**: Easier to implement and debug
+4. **Scalability**: Better suited for large-scale neural machine translation
+
+**Impact on Modern NLP**: Luong attention's principles influenced the development of transformer attention mechanisms, proving that simpler, well-designed attention can be more effective than complex alternatives.
 
 ## Scaled Dot-Product Attention
 
