@@ -81,9 +81,7 @@ With attention:
 
 The fundamental attention mechanism computes:
 
-```
-Attention(Q, K, V) = softmax(score(Q, K)) · V
-```
+$$ \text{Attention}(Q, K, V) = \text{softmax}(\text{score}(Q, K)) \cdot V $$
 
 Where:
 - **Q (Query)**: What we're looking for (size: [seq_len_q, d_model])
@@ -282,25 +280,23 @@ The most widely used attention mechanism, fundamental to Transformers.
 
 ### Mathematical Definition
 
-```
-Attention(Q, K, V) = softmax(QKᵀ / √dₖ) V
-```
+$$ \text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right) V $$
 
 ### Why Scaling?
 
-The scaling factor `√dₖ` is crucial:
+The scaling factor $\sqrt{d_k}$ is crucial:
 - Dot products grow with dimensionality
 - Large dot products push softmax into saturation regions
 - Scaling keeps gradients stable and attention weights distributed
 
 ### Mathematical Derivation
 
-For vectors with dimension `dₖ` where components are i.i.d. with mean 0 and variance 1:
-- `E[qᵀk] = 0` (expected value is zero)
-- `Var(qᵀk) = dₖ` (variance grows with dimension)
-- Standard deviation: `σ = √dₖ`
+For vectors with dimension $d_k$ where components are i.i.d. with mean 0 and variance 1:
+- $E[q^T k] = 0$ (expected value is zero)
+- $\text{Var}(q^T k) = d_k$ (variance grows with dimension)
+- Standard deviation: $\sigma = \sqrt{d_k}$
 
-Dividing by `√dₖ` normalizes the variance to 1, keeping attention weights in a reasonable range.
+Dividing by $\sqrt{d_k}$ normalizes the variance to 1, keeping attention weights in a reasonable range.
 
 ### Implementation
 
@@ -352,19 +348,17 @@ Multi-head attention runs multiple attention mechanisms in parallel, allowing th
 
 ### Mathematical Definition
 
-```
-MultiHead(Q, K, V) = Concat(head₁, head₂, ..., headₕ) · W^O
+$$ \text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, \text{head}_2, \ldots, \text{head}_h) W^O $$
 
-where headᵢ = Attention(Q·W^Q_i, K·W^K_i, V·W^V_i)
-```
+where $\text{head}_i = \text{Attention}(Q W^Q_i, K W^K_i, V W^V_i)$
 
 ### Parameters
 
-- **h**: Number of attention heads
-- **W^Q_i, W^K_i, W^V_i**: Projection matrices for head i
-- **W^O**: Output projection matrix
-- **d_model**: Model dimension
-- **d_k = d_v = d_model / h**: Dimension per head
+- $h$: Number of attention heads
+- $W^Q_i, W^K_i, W^V_i$: Projection matrices for head $i$
+- $W^O$: Output projection matrix
+- $d_{\text{model}}$: Model dimension
+- $d_k = d_v = d_{\text{model}} / h$: Dimension per head
 
 ### Benefits
 
@@ -434,22 +428,20 @@ Self-attention is a special case where Query, Key, and Value all come from the s
 
 ### Mathematical Formulation
 
-For input sequence X = [x₁, x₂, ..., xₙ]:
+For input sequence $X = [x_1, x_2, \ldots, x_n]$:
 
-```
-Q = X · W^Q
-K = X · W^K  
-V = X · W^V
+$$ Q = X \cdot W^Q $$
+$$ K = X \cdot W^K $$
+$$ V = X \cdot W^V $$
 
-SelfAttention(X) = Attention(Q, K, V)
-```
+$$ \text{SelfAttention}(X) = \text{Attention}(Q, K, V) $$
 
 ### Key Properties
 
 1. **Position Independence**: Each position can attend to any other position
 2. **Permutation Equivariance**: Output changes predictably with input permutation
 3. **Long-Range Dependencies**: Direct connections between distant positions
-4. **Computational Efficiency**: O(n²d) complexity vs O(n³) for RNNs
+4. **Computational Efficiency**: $O(n^2 d)$ complexity vs $O(n^3)$ for RNNs
 
 ### Implementation Example
 
@@ -1128,12 +1120,11 @@ Attention is the fundamental building block of Transformer architecture. Underst
 
 The complete Transformer attention mechanism:
 
-```
-MultiHeadAttention(Q, K, V) = Concat(head₁, ..., headₕ) W^O
+$$ \text{MultiHeadAttention}(Q, K, V) = \text{Concat}(\text{head}_1, \ldots, \text{head}_h) W^O $$
 
-where headᵢ = Attention(QW^Q_i, KW^K_i, VW^V_i)
-      Attention(Q, K, V) = softmax(QK^T/√d_k)V
-```
+where $\text{head}_i = \text{Attention}(Q W^Q_i, K W^K_i, V W^V_i)$ and 
+
+$$ \text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V $$
 
 This is then combined with:
 - **Position Encoding**: Adds positional information
@@ -1215,7 +1206,7 @@ def analyze_attention_patterns(attention_weights, threshold=0.1):
 - Solution: Temperature scaling, attention regularization
 
 **Problem: Long Sequence Memory**
-- Quadratic memory complexity O(n²)
+- Quadratic memory complexity $O(n^2)$
 - Solution: Gradient checkpointing, sparse attention, local attention windows
 
 ```python
