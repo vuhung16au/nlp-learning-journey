@@ -60,7 +60,7 @@ Similarity metrics are mathematical functions that quantify the degree of simila
 
 **Formula**: 
 
-$$ \text{cosine\_similarity}(A, B) = \frac{A \cdot B}{||A|| \times ||B||} $$
+$$ \text{cosine similarity}(A, B) = \frac{A \cdot B}{||A|| \times ||B||} $$
 
 **Range**: [-1, 1] where 1 indicates identical vectors, 0 indicates orthogonal vectors, and -1 indicates opposite vectors.
 
@@ -79,7 +79,7 @@ $$ \text{cosine\_similarity}(A, B) = \frac{A \cdot B}{||A|| \times ||B||} $$
 
 **Formula**: 
 
-$$ \text{euclidean\_distance}(A, B) = \sqrt{\sum_{i}(a_i - b_i)^2} $$
+$$ \text{euclidean distance}(A, B) = \sqrt{\sum_{i}(a_i - b_i)^2} $$
 
 **Range**: [0, ∞] where 0 indicates identical vectors.
 
@@ -98,7 +98,7 @@ $$ \text{euclidean\_distance}(A, B) = \sqrt{\sum_{i}(a_i - b_i)^2} $$
 
 **Formula**: 
 
-$$ \text{manhattan\_distance}(A, B) = \sum_{i}|a_i - b_i| $$
+$$ \text{manhattan distance}(A, B) = \sum_{i}|a_i - b_i| $$
 
 **Advantages**:
 - Robust to outliers
@@ -115,7 +115,7 @@ $$ \text{manhattan\_distance}(A, B) = \sum_{i}|a_i - b_i| $$
 
 **Formula**: 
 
-$$ \text{jaccard\_similarity}(A, B) = \frac{|A \cap B|}{|A \cup B|} $$
+$$ \text{jaccard similarity}(A, B) = \frac{|A \cap B|}{|A \cup B|} $$
 
 **Range**: [0, 1] where 1 indicates identical sets.
 
