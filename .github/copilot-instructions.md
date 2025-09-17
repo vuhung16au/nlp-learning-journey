@@ -152,7 +152,28 @@ for package in required_packages:
    "
    ```
 
-4. **Data Science Libraries Test** (should complete in 2-3 seconds):
+4. **Vietnamese/English Text Processing Test** (should complete in 2-3 seconds):
+   ```bash
+   python -c "
+   # Test Vietnamese/English text processing
+   import nltk
+   from nltk.tokenize import word_tokenize
+   
+   # English text
+   english_text = 'My name is John.'
+   english_tokens = word_tokenize(english_text)
+   print('English tokens:', english_tokens)
+   
+   # Vietnamese text 
+   vietnamese_text = 'Tên tôi là John.'
+   vietnamese_tokens = word_tokenize(vietnamese_text)
+   print('Vietnamese tokens:', vietnamese_tokens)
+   
+   print('Vietnamese/English processing working!')
+   "
+   ```
+
+5. **Data Science Libraries Test** (should complete in 2-3 seconds):
    ```bash
    python -c "
    import pandas as pd, numpy as np
@@ -164,7 +185,27 @@ for package in required_packages:
    "
    ```
 
-5. **Runtime Environment Detection Test** (should complete in under 1 second):
+6. **Vietnamese/English Translation Test** (should complete in 2-3 seconds):
+   ```bash
+   python -c "
+   # Test Vietnamese/English translation examples
+   translation_pairs = [
+       ('My name is', 'Tên tôi là'),
+       ('Hello', 'Xin chào'),
+       ('Thank you', 'Cảm ơn'),
+       ('How are you?', 'Bạn khỏe không?'),
+       ('I love programming', 'Tôi yêu lập trình')
+   ]
+   
+   print('Vietnamese/English Translation Examples:')
+   for english, vietnamese in translation_pairs:
+       print(f'  English: {english:20} → Vietnamese: {vietnamese}')
+   
+   print('Translation examples working!')
+   "
+   ```
+
+7. **Runtime Environment Detection Test** (should complete in under 1 second):
    ```bash
    python -c "
    import sys
@@ -186,7 +227,7 @@ for package in required_packages:
    "
    ```
 
-**Manual Validation Requirement**: After any significant changes, run all five validation tests to ensure the environment remains functional.
+**Manual Validation Requirement**: After any significant changes, run all seven validation tests to ensure the environment remains functional.
 
 ## Repository Structure and Navigation
 
@@ -312,6 +353,14 @@ python -c "from nltk.tokenize import word_tokenize; print('NLTK OK')"
 python -c "from sklearn.feature_extraction.text import TfidfVectorizer; print('sklearn OK')"
 python -c "import sys; IS_COLAB = 'google.colab' in sys.modules; IS_KAGGLE = 'kaggle_secrets' in sys.modules; IS_LOCAL = not (IS_COLAB or IS_KAGGLE); assert sum([IS_LOCAL, IS_COLAB, IS_KAGGLE]) == 1; print('Environment detection OK')"
 
+# Test Vietnamese/English processing
+python -c "
+# Vietnamese/English translation examples
+pairs = [('My name is', 'Tên tôi là'), ('Hello', 'Xin chào'), ('Thank you', 'Cảm ơn')]
+for en, vi in pairs: print(f'{en} → {vi}')
+print('Vietnamese/English examples OK')
+"
+
 # Start development environment
 jupyter lab                                        # Interactive development
 ```
@@ -331,10 +380,10 @@ Input Sequence → [Encoder] → Context Vector → [Decoder] → Output Sequenc
 **Required - Use Mermaid with proper styling:**
 ```mermaid
 graph TD
-    A[Input Sequence] --> B[Encoder]
+    A[English Input:<br/>'My name is John'] --> B[Encoder]
     B --> C[Context Vector]
     C --> D[Decoder]
-    D --> E[Output Sequence]
+    D --> E[Vietnamese Output:<br/>'Tên tôi là John']
 
     style A fill:#FFFFFF,stroke:#582C67,color:#333,stroke-width:2px
     style B fill:#582C67,stroke:#C60C30,color:#FFFFFF,stroke-width:2px
@@ -343,9 +392,9 @@ graph TD
     style E fill:#FFFFFF,stroke:#582C67,color:#333,stroke-width:2px
 
     subgraph Notes
-        sub1[Input Sequence - variable length]
+        sub1[English Input - variable length]
         sub2[Context Vector - fixed-size]
-        sub3[Output Sequence - variable length]
+        sub3[Vietnamese Output - variable length]
     end
 ```
 
@@ -391,6 +440,12 @@ The LSTM cell uses three gates to control information flow. The forget gate `$f_
 $$ f_t = \sigma(W_f \cdot [h_{t-1}, x_t] + b_f) $$
 
 Where `$\sigma$` is the sigmoid function, `$W_f$` is the weight matrix, and `$b_f$` is the bias vector.
+
+For machine translation tasks like English-Vietnamese translation, the probability of generating Vietnamese word `$v_t$` given English context can be expressed as:
+
+$$ P(v_t | \text{English context}) = \text{softmax}(W_v \cdot h_t + b_v) $$
+
+Example: P("tôi" | "I") represents the probability of generating Vietnamese "tôi" given English "I".
 ```
 
 ### Visual Documentation Requirements
@@ -400,6 +455,35 @@ Where `$\sigma$` is the sigmoid function, `$W_f$` is the weight matrix, and `$b_
 3. **Mathematical Precision**: Use LaTeX for all mathematical expressions and formulas
 4. **Contextual Notes**: Include explanatory text around diagrams and formulas
 5. **Accessibility**: Ensure diagrams and formulas have accompanying text descriptions
+
+### Vietnamese/English Examples in Documentation
+
+**When documenting machine translation or cross-lingual NLP tasks, prioritize Vietnamese/English examples:**
+
+**Preferred Examples:**
+- **Basic Translation**: English: "My name is" → Vietnamese: "Tên tôi là"
+- **Common Phrases**: English: "Hello" → Vietnamese: "Xin chào"
+- **Greetings**: English: "How are you?" → Vietnamese: "Bạn khỏe không?"
+- **Polite Expressions**: English: "Thank you" → Vietnamese: "Cảm ơn"
+- **Technical Terms**: English: "Machine learning" → Vietnamese: "Học máy"
+
+**Use Vietnamese/English examples for:**
+- Translation model demonstrations
+- Cross-lingual embedding examples
+- Tokenization comparisons
+- Named entity recognition across languages
+- Sentiment analysis in multiple languages
+
+**Example Documentation Pattern:**
+```markdown
+## Translation Example: English ↔ Vietnamese
+
+Consider the translation pair:
+- **English**: "I love programming"
+- **Vietnamese**: "Tôi yêu lập trình"
+
+The encoder processes the English tokens `["I", "love", "programming"]` while the decoder generates Vietnamese tokens `["Tôi", "yêu", "lập", "trình"]`.
+```
 
 These standards apply to all Markdown files in the repository, including documentation in `docs/`, README files, and example notebooks.
 
