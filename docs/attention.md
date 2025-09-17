@@ -630,6 +630,237 @@ def sentiment_analysis_example():
 sentiment_output, sentiment_weights = sentiment_analysis_example()
 ```
 
+### Example 3: Neural Machine Translation with Encoder-Decoder Architecture
+
+Based on Figure 16-6, this example demonstrates a complete **Neural Machine Translation (NMT)** system using the powerful **Encoder-Decoder architecture** augmented with an **attention mechanism**. The goal is to translate a source sentence (like the French "I drink milk") into a target sentence (like "je bois du lait").
+
+```mermaid
+graph TB
+    subgraph Encoder ["🔵 Encoder"]
+        x0["x₍₀₎<br/>I"] --> h0["h₍₀₎"]
+        x1["x₍₁₎<br/>drink"] --> h1["h₍₁₎"]
+        x2["x₍₂₎<br/>milk"] --> h2["h₍₂₎"]
+        
+        h0 --> h1
+        h1 --> h2
+        
+        style x0 fill:#E3F2FD,stroke:#1976D2,stroke-width:2px
+        style x1 fill:#E3F2FD,stroke:#1976D2,stroke-width:2px
+        style x2 fill:#E3F2FD,stroke:#1976D2,stroke-width:2px
+        style h0 fill:#BBDEFB,stroke:#1976D2,stroke-width:2px
+        style h1 fill:#BBDEFB,stroke:#1976D2,stroke-width:2px
+        style h2 fill:#BBDEFB,stroke:#1976D2,stroke-width:2px
+    end
+    
+    subgraph Decoder ["🟠 Decoder"]
+        y0["y₍₀₎<br/>je"] --> d0["h'₍₀₎"]
+        y1["y₍₁₎<br/>bois"] --> d1["h'₍₁₎"]
+        y2["y₍₂₎<br/>du"] --> d2["h'₍₂₎"]
+        
+        d0 --> d1
+        d1 --> d2
+        
+        d0 --> out0["y'₍₁₎<br/>bois"]
+        d1 --> out1["y'₍₂₎<br/>du"]
+        d2 --> out2["y'₍₃₎<br/>lait"]
+        
+        style y0 fill:#FFF3E0,stroke:#F57C00,stroke-width:2px
+        style y1 fill:#FFF3E0,stroke:#F57C00,stroke-width:2px
+        style y2 fill:#FFF3E0,stroke:#F57C00,stroke-width:2px
+        style d0 fill:#FFE0B2,stroke:#F57C00,stroke-width:2px
+        style d1 fill:#FFE0B2,stroke:#F57C00,stroke-width:2px
+        style d2 fill:#FFE0B2,stroke:#F57C00,stroke-width:2px
+        style out0 fill:#FFCC80,stroke:#F57C00,stroke-width:2px
+        style out1 fill:#FFCC80,stroke:#F57C00,stroke-width:2px
+        style out2 fill:#FFCC80,stroke:#F57C00,stroke-width:2px
+    end
+    
+    subgraph AttentionModel ["🔴 Attention Model"]
+        e30["e₍₃,₀₎"] --> softmax["Softmax"]
+        e31["e₍₃,₁₎"] --> softmax
+        e32["e₍₃,₂₎"] --> softmax
+        
+        softmax --> a30["α₍₃,₀₎"]
+        softmax --> a31["α₍₃,₁₎"]
+        softmax --> a32["α₍₃,₂₎"]
+        
+        a30 --> context["+<br/>Context Vector"]
+        a31 --> context
+        a32 --> context
+        
+        dense["TimeDistributed(Dense)"] --> e30
+        dense --> e31
+        dense --> e32
+        
+        style dense fill:#FFEBEE,stroke:#C62828,stroke-width:2px
+        style softmax fill:#FFCDD2,stroke:#C62828,stroke-width:2px
+        style context fill:#EF9A9A,stroke:#C62828,stroke-width:2px
+        style e30 fill:#FFEBEE,stroke:#C62828,stroke-width:1px
+        style e31 fill:#FFEBEE,stroke:#C62828,stroke-width:1px
+        style e32 fill:#FFEBEE,stroke:#C62828,stroke-width:1px
+        style a30 fill:#FFCDD2,stroke:#C62828,stroke-width:1px
+        style a31 fill:#FFCDD2,stroke:#C62828,stroke-width:1px
+        style a32 fill:#FFCDD2,stroke:#C62828,stroke-width:1px
+    end
+    
+    %% Connections between components
+    h0 -.-> dense
+    h1 -.-> dense
+    h2 -.-> dense
+    d2 -.-> dense
+    context -.-> d2
+    
+    %% Attention arrows
+    h0 -.-> a30
+    h1 -.-> a31
+    h2 -.-> a32
+```
+
+#### The Encoder
+
+The encoder (bottom-left) reads the input sequence and converts it into contextualized representations:
+
+- **Input Sequence**: The source sentence "I drink milk" is fed word by word, with each word represented by vectors $x_{(0)}$, $x_{(1)}$, and $x_{(2)}$.
+- **Recurrent Neural Network (RNN)**: The encoder uses an RNN to process the sequence. At each time step, the RNN takes the current word vector ($x_t$) and the previous hidden state ($h_{t-1}$) to compute a new hidden state ($h_t$).
+- **Hidden States**: The output is a series of hidden states $h_{(0)}$, $h_{(1)}$, and $h_{(2)}$, each encoding information about the words up to that point.
+
+#### The Decoder
+
+The decoder (top-left) generates the target sequence word by word:
+
+- **RNN**: The decoder also uses an RNN. At each time step, it takes the previous output word (e.g., $y_{(0)}$) and its previous hidden state to predict the next word in the sequence.
+- **Initial State**: The decoder's initial hidden state is often initialized with the encoder's final hidden state, providing a starting summary of the source sentence.
+- **Output Sequence**: The decoder generates the translated sentence "du lait" one word at a time, represented by vectors $y'$.
+
+#### The Attention Model (The Crucial Part)
+
+The attention mechanism (shown in the red box on the right) solves the key limitation of basic Encoder-Decoder models by allowing the decoder to "look back" at all encoder hidden states:
+
+1. **Alignment Scores**: The decoder's current hidden state ($h_{(2)}$) is compared with **all** encoder hidden states ($h_{(0)}$, $h_{(1)}$, $h_{(2)}$) to compute **alignment scores** ($e_{(3,0)}$, $e_{(3,1)}$, $e_{(3,2)}$). These scores represent how well the current decoder state "aligns" with each encoder state.
+
+2. **Softmax**: The alignment scores are passed through a **Softmax** function, normalizing them into **attention weights** ($\alpha_{(3,0)}$, $\alpha_{(3,1)}$, $\alpha_{(3,2)}$) that sum to 1. Higher attention weights indicate more relevance.
+
+3. **Context Vector**: A new **context vector** is computed as a weighted sum of the encoder's hidden states, with weights being the attention weights. The most relevant parts of the encoder's output receive more weight.
+
+4. **Prediction**: The decoder's RNN uses this context-aware vector to make informed predictions for the next word.
+
+In this example, when generating "lait," the attention weights will likely be highest for the encoder state corresponding to "milk," enabling correct translation.
+
+```python
+def neural_machine_translation_example():
+    """
+    Demonstrate Neural Machine Translation using Encoder-Decoder with Attention
+    Based on Figure 16-6: Neural machine translation using an Encoder–Decoder network with an attention model
+    """
+    
+    # Source sentence: "I drink milk" -> Target: "je bois du lait"
+    english_words = ["I", "drink", "milk"]
+    french_words = ["je", "bois", "du", "lait"]
+    
+    # Simulated embeddings for demonstration
+    d_model = 8
+    np.random.seed(42)
+    
+    print("Neural Machine Translation with Encoder-Decoder Attention")
+    print("=" * 60)
+    print("Source (English):", " ".join(english_words))
+    print("Target (French): ", " ".join(french_words))
+    print()
+    
+    # Encoder: Process English sentence
+    print("🔵 ENCODER PHASE:")
+    print("Processing English words through RNN...")
+    
+    # Simulate encoder hidden states (normally computed by RNN)
+    encoder_states = np.random.normal(0, 1, (len(english_words), d_model))
+    
+    for i, (word, state) in enumerate(zip(english_words, encoder_states)):
+        print(f"  h₍{i}₎ for '{word}': {state[:4].round(3)}... (shape: {state.shape})")
+    
+    print()
+    
+    # Decoder: Generate French words one by one
+    print("🟠 DECODER PHASE:")
+    decoder_state = np.random.normal(0, 1, d_model)  # Initial decoder state
+    
+    # Simulate the attention process for generating "lait" (the 4th French word)
+    print("Generating word 'lait' (position 3):")
+    print()
+    
+    # Step 1: Compute alignment scores
+    print("🔴 ATTENTION MECHANISM:")
+    print("Step 1: Computing alignment scores e₍₃,ᵢ₎")
+    
+    alignment_scores = []
+    for i, (eng_word, enc_state) in enumerate(zip(english_words, encoder_states)):
+        # Simplified alignment scoring (normally uses learned weights)
+        score = np.dot(decoder_state, enc_state)
+        alignment_scores.append(score)
+        print(f"  e₍₃,{i}₎ = decoder_state · h₍{i}₎ ('{eng_word}') = {score:.3f}")
+    
+    print()
+    
+    # Step 2: Apply softmax to get attention weights
+    print("Step 2: Applying softmax to get attention weights α₍₃,ᵢ₎")
+    alignment_scores = np.array(alignment_scores)
+    attention_weights = np.exp(alignment_scores) / np.sum(np.exp(alignment_scores))
+    
+    for i, (eng_word, weight) in enumerate(zip(english_words, attention_weights)):
+        print(f"  α₍₃,{i}₎ for '{eng_word}': {weight:.3f}")
+    
+    print()
+    
+    # Step 3: Compute context vector
+    print("Step 3: Computing context vector as weighted sum")
+    context_vector = np.sum(attention_weights.reshape(-1, 1) * encoder_states, axis=0)
+    print(f"  Context vector: {context_vector[:4].round(3)}... (shape: {context_vector.shape})")
+    
+    print()
+    
+    # Step 4: Generate prediction
+    print("Step 4: Using context vector for prediction")
+    print("  The decoder RNN combines:")
+    print("    - Previous decoder state")
+    print("    - Context vector (attention-weighted encoder states)")
+    print("    - Previous output word 'du'")
+    print("  → Prediction: 'lait' ✓")
+    
+    print()
+    
+    # Attention interpretation
+    print("🧠 ATTENTION INTERPRETATION:")
+    max_attention_idx = np.argmax(attention_weights)
+    max_english_word = english_words[max_attention_idx]
+    max_weight = attention_weights[max_attention_idx]
+    
+    print(f"When generating 'lait', the model pays most attention to:")
+    print(f"  '{max_english_word}' with weight {max_weight:.3f}")
+    print()
+    print("This makes sense because:")
+    print("  'lait' (French) corresponds to 'milk' (English)")
+    print("  The attention mechanism learned this alignment!")
+    
+    print()
+    print("Attention weights visualization:")
+    print("  French 'lait' attending to English words:")
+    for eng_word, weight in zip(english_words, attention_weights):
+        bar_length = int(weight * 20)  # Scale for visualization
+        bar = "█" * bar_length + "░" * (20 - bar_length)
+        print(f"    {eng_word:>6}: {bar} {weight:.3f}")
+    
+    return {
+        'encoder_states': encoder_states,
+        'attention_weights': attention_weights,
+        'context_vector': context_vector,
+        'alignment_scores': alignment_scores
+    }
+
+# Run the Neural Machine Translation example
+nmt_results = neural_machine_translation_example()
+```
+
+This example demonstrates how the attention mechanism enables the decoder to dynamically focus on relevant parts of the input sequence, solving the information bottleneck problem of traditional sequence-to-sequence models. The attention weights provide interpretable insights into the model's translation decisions, showing exactly which source words influence each target word prediction.
+
 ## Attention Visualization
 
 ```python
