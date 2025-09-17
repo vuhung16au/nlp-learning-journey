@@ -137,6 +137,7 @@ Where:
 
 GPT generates text through an autoregressive process where each token is predicted based on all previous tokens in the sequence.
 
+<--
 ```mermaid
 graph LR
     A[Input: "The cat"] --> B[Predict: "sat"]
@@ -156,6 +157,7 @@ graph LR
     style G fill:#FFFFFF,stroke:#582C67,color:#333,stroke-width:2px
     style H fill:#C60C30,stroke:#582C67,color:#FFFFFF,stroke-width:2px
 ```
+-->
 
 ### Training Objective
 
