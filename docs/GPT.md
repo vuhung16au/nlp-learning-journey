@@ -1,5 +1,6 @@
 # GPT (Generative Pre-trained Transformer) in Natural Language Processing
 
+
 This document provides a comprehensive explanation of GPT (Generative Pre-trained Transformer), its architecture, evolution, and profound impact on Natural Language Processing. GPT represents one of the most significant breakthroughs in AI and has revolutionized how we approach text generation, language understanding, and human-AI interaction.
 
 > **Note on Examples**: Some code examples require internet connection to download pre-trained models from Hugging Face. These are clearly marked. For offline usage, you can download models locally first or use the provided implementation examples that work without internet connection.
@@ -139,9 +140,12 @@ GPT generates text through an autoregressive process where each token is predict
 ```mermaid
 graph LR
     A[Input: "The cat"] --> B[Predict: "sat"]
-    B --> C[Input: "The cat sat"] --> D[Predict: "on"]
-    D --> E[Input: "The cat sat on"] --> F[Predict: "the"]
-    F --> G[Input: "The cat sat on the"] --> H[Predict: "mat"]
+    B --> C[Input: "The cat sat"]
+    C --> D[Predict: "on"]
+    D --> E[Input: "The cat sat on"]
+    E --> F[Predict: "the"]
+    F --> G[Input: "The cat sat on the"]
+    G --> H[Predict: "mat"]
 
     style A fill:#FFFFFF,stroke:#582C67,color:#333,stroke-width:2px
     style B fill:#C60C30,stroke:#582C67,color:#FFFFFF,stroke-width:2px
@@ -320,6 +324,7 @@ graph TD
 ### Pre-training Phase
 
 **1. Data Collection and Preprocessing**
+
 ```python
 # Conceptual data preprocessing pipeline
 def preprocess_training_data(raw_text):
