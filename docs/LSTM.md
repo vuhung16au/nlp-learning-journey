@@ -70,17 +70,17 @@ $$ i_t = \sigma(W_i \cdot [h_{t-1}, x_t] + b_i) $$
 $$ \tilde{C}_t = \tanh(W_C \cdot [h_{t-1}, x_t] + b_C) $$
 
 **Cell State Update**: Combines forget and input operations
-$$ C_t = f_t * C_{t-1} + i_t * \tilde{C}_t $$
+$$ C_t = f_t \odot C_{t-1} + i_t \odot \tilde{C}_t $$
 
 **Output Gate**: Controls what parts of the cell state to output
 $$ o_t = \sigma(W_o \cdot [h_{t-1}, x_t] + b_o) $$
-$$ h_t = o_t * \tanh(C_t) $$
+$$ h_t = o_t \odot \tanh(C_t) $$
 
 Where:
 - $\sigma$ is the sigmoid function
 - $W$ are weight matrices
 - $b$ are bias vectors
-- $*$ denotes element-wise multiplication
+- $\odot$ denotes element-wise multiplication
 
 ### Key Advantages
 
