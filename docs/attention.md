@@ -292,7 +292,7 @@ The scaling factor $\sqrt{d_k}$ is crucial:
 ### Mathematical Derivation
 
 For vectors with dimension $d_k$ where components are i.i.d. with mean 0 and variance 1:
-- $E[q^T k] = 0$ (expected value is zero)
+- $\text{E}[q^T k] = 0$ (expected value is zero)
 - $\text{Var}(q^T k) = d_k$ (variance grows with dimension)
 - Standard deviation: $\sigma = \sqrt{d_k}$
 
@@ -1124,7 +1124,7 @@ $$ \text{MultiHeadAttention}(Q, K, V) = \text{Concat}(\text{head}_1, \ldots, \te
 
 where $\text{head}_i = \text{Attention}(Q W^Q_i, K W^K_i, V W^V_i)$ and 
 
-$$ \text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V $$
+$$ \text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right) V $$
 
 This is then combined with:
 - **Position Encoding**: Adds positional information
