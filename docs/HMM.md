@@ -108,25 +108,58 @@ graph LR
     C --> D[...]
     D --> E[sₙ]
     
-    style A fill:#e3f2fd,stroke:#333,stroke-width:2px
-    style B fill:#e3f2fd,stroke:#333,stroke-width:2px
-    style C fill:#e3f2fd,stroke:#333,stroke-width:2px
-    style D fill:#e3f2fd,stroke:#333,stroke-width:2px
-    style E fill:#e3f2fd,stroke:#333,stroke-width:2px
+    style A fill:#FFFFFF,stroke:#582C67,color:#333,stroke-width:2px
+    style B fill:#FFFFFF,stroke:#582C67,color:#333,stroke-width:2px
+    style C fill:#FFFFFF,stroke:#582C67,color:#333,stroke-width:2px
+    style D fill:#FFFFFF,stroke:#582C67,color:#333,stroke-width:2px
+    style E fill:#FFFFFF,stroke:#582C67,color:#333,stroke-width:2px
 ```
 Used for sequential labeling where order matters.
 
 **Fully Connected HMM**:
+```mermaid
+graph TD
+    A[s₁] --> B[s₂]
+    A --> C[s₃]
+    A --> D[sₙ]
+    B --> A
+    B --> C
+    B --> D
+    C --> A
+    C --> B
+    C --> D
+    D --> A
+    D --> B
+    D --> C
+    
+    style A fill:#582C67,stroke:#C60C30,color:#FFFFFF,stroke-width:2px
+    style B fill:#582C67,stroke:#C60C30,color:#FFFFFF,stroke-width:2px
+    style C fill:#582C67,stroke:#C60C30,color:#FFFFFF,stroke-width:2px
+    style D fill:#582C67,stroke:#C60C30,color:#FFFFFF,stroke-width:2px
 ```
-Every state can transition to every other state
-```
-Maximum flexibility but requires more parameters.
+Maximum flexibility but requires more parameters - every state can transition to every other state.
 
 **Ergodic HMM**:
+```mermaid
+graph TD
+    A[s₁] --> B[s₂]
+    A --> C[s₃]
+    B --> C
+    B --> A
+    C --> A
+    C --> B
+    
+    style A fill:#C60C30,stroke:#582C67,color:#FFFFFF,stroke-width:2px
+    style B fill:#C60C30,stroke:#582C67,color:#FFFFFF,stroke-width:2px
+    style C fill:#C60C30,stroke:#582C67,color:#FFFFFF,stroke-width:2px
+    
+    subgraph Notes
+        sub1[Every state is reachable<br/>from every other state]
+    end
+    
+    style sub1 fill:#FFFFFF,stroke:#582C67,color:#333,stroke-width:1px
 ```
-Every state is reachable from every other state
-```
-Ensures model convergence and stability.
+Ensures model convergence and stability - every state is reachable from every other state.
 
 ## The Three Fundamental Problems
 
