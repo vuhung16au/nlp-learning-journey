@@ -1552,10 +1552,17 @@ $$ P(y_t) = \text{softmax}(W_y h_t + b_y) $$
 **Encoder-Decoder**:
 Separate networks for encoding and decoding:
 
-**Encoder**: $$ h_t^{enc} = f_{enc}(h_{t-1}^{enc}, x_t) $$
-**Context**: $$ c = g(h_1^{enc}, h_2^{enc}, ..., h_T^{enc}) $$
-**Decoder**: $$ h_t^{dec} = f_{dec}(h_{t-1}^{dec}, y_{t-1}, c) $$
-**Output**: $$ P(y_t) = \text{softmax}(W_y h_t^{dec} + b_y) $$
+**Encoder**: 
+$$ h_t^{enc} = f_{enc}(h_{t-1}^{enc}, x_t) $$
+
+**Context**: 
+$$ c = g(h_1^{enc}, h_2^{enc}, ..., h_T^{enc}) $$
+
+**Decoder**: 
+$$ h_t^{dec} = f_{dec}(h_{t-1}^{dec}, y_{t-1}, c) $$
+
+**Output**: 
+$$ P(y_t) = \text{softmax}(W_y h_t^{dec} + b_y) $$
 
 ### Why Encoder-Decoder is Preferred for Translation
 
