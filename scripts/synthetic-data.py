@@ -106,33 +106,191 @@ class SyntheticTextGenerator:
             'plan': ['ryokou', 'kaigi', 'paatii', 'benkyou', 'yasumi']
         }
         
-        # Vietnamese templates
+        # Vietnamese templates - improved with authentic language patterns
         self.vietnamese_templates = [
-            "Hôm nay tôi đã {action} ở {place}. Rất {adjective}!",
-            "{person} đã {action} {object}. Tôi cảm thấy {feeling}.",
-            "Ở {location} có {event} rất {adjective}.",
-            "{time} này, {weather} {adjective} quá.",
-            "Tôi {feeling} {activity} vào {time}.",
-            "{product} này {quality}. Tôi {recommendation}.",
-            "Gia đình tôi {action} đến {place} vào {time}.",
-            "{event} ở {location} sẽ {action} vào {time}."
+            # Personal introductions and greetings (following repository examples)
+            "Tên tôi là {name}. Tôi đến từ {location}.",
+            "Xin chào! Tôi là {profession} tại {workplace}.",
+            "Rất vui được gặp {person}. Tôi làm việc ở {workplace}.",
+            
+            # Daily activities and experiences
+            "Hôm nay tôi đã {action} ở {place}. Cảm thấy rất {feeling}!",
+            "Tôi thường {activity} vào {time_period}.",
+            "Cuối tuần tôi thích {leisure_activity} với {companion}.",
+            
+            # Opinions and reviews
+            "{product} này thật {quality}. Tôi {recommendation} cho mọi người.",
+            "Dịch vụ tại {business} rất {service_quality}. {opinion_detail}.",
+            "Món {food} có vị {taste} và được chế biến rất {cooking_quality}.",
+            
+            # Events and experiences
+            "{event} ở {location} diễn ra rất {event_quality}.",
+            "Tuần trước tôi tham gia {activity} tại {venue}.",
+            "{person} đã {action} một {achievement} đáng {appreciation}.",
+            
+            # Weather and environment
+            "Hôm nay thời tiết {weather_condition}, thích hợp để {weather_activity}.",
+            "Mùa {season} ở {location} rất {seasonal_quality}.",
+            
+            # Future plans
+            "Tuần tới tôi sẽ {future_action} ở {destination}.",
+            "Tôi đang lên kế hoạch {plan} vào {future_time}.",
+            
+            # Technology and learning (following repository's programming focus)
+            "Tôi đang học {subject} để {learning_goal}.",
+            "Công nghệ {technology} giúp {benefit} trong {field}.",
+            "Lập trình {programming_language} rất {learning_difficulty} nhưng {reward}.",
+            
+            # Social interactions
+            "{person} đã chia sẻ với tôi về {topic}. Thật {reaction}!",
+            "Gia đình tôi {family_activity} vào {family_time}.",
+            "Bạn bè tôi thường {social_activity} tại {social_venue}."
         ]
         
         self.vietnamese_vocab = {
-            'action': ['đi', 'ăn', 'học', 'làm việc', 'chơi', 'xem', 'mua', 'bán'],
-            'place': ['nhà hàng', 'trường học', 'công viên', 'chợ', 'bệnh viện', 'ngân hàng'],
-            'adjective': ['tốt', 'xấu', 'đẹp', 'hay', 'dở', 'thú vị', 'nhàm chán', 'tuyệt vời'],
-            'person': ['bạn tôi', 'gia đình', 'đồng nghiệp', 'thầy cô', 'hàng xóm'],
-            'object': ['sách', 'điện thoại', 'xe', 'nhà', 'quần áo', 'đồ ăn'],
-            'feeling': ['vui', 'buồn', 'hạnh phúc', 'lo lắng', 'thích', 'ghét'],
-            'location': ['Hà Nội', 'Hồ Chí Minh', 'Đà Nẵng', 'Hải Phòng', 'Cần Thơ'],
-            'event': ['lễ hội', 'họp mặt', 'tiệc', 'hội nghị', 'triển lãm', 'buổi hòa nhạc'],
-            'time': ['sáng', 'trưa', 'chiều', 'tối', 'ngày mai', 'tuần tới'],
-            'weather': ['thời tiết', 'trời', 'nắng', 'mưa', 'gió'],
-            'activity': ['đọc sách', 'xem phim', 'nghe nhạc', 'chơi game', 'thể thao'],
-            'product': ['sản phẩm', 'dịch vụ', 'món ăn', 'đồ uống', 'quần áo'],
-            'quality': ['tốt', 'không tốt', 'bình thường', 'xuất sắc', 'tệ'],
-            'recommendation': ['khuyên dùng', 'không khuyên', 'thích', 'không thích']
+            # Names (common Vietnamese names)
+            'name': ['Minh', 'Hoa', 'Nam', 'Linh', 'Dung', 'Tú', 'An', 'Bình', 'Chi', 'Long'],
+            
+            # Locations (Vietnamese cities and places)
+            'location': ['Hà Nội', 'Hồ Chí Minh', 'Đà Nẵng', 'Hải Phòng', 'Cần Thơ', 'Hải Dương', 'Vinh', 'Huế'],
+            
+            # Professions
+            'profession': ['kỹ sư', 'giáo viên', 'bác sĩ', 'lập trình viên', 'sinh viên', 'nhân viên', 'thầy thuốc', 'kiến trúc sư'],
+            
+            # Workplaces
+            'workplace': ['công ty', 'trường đại học', 'bệnh viện', 'ngân hàng', 'cửa hàng', 'nhà máy', 'văn phòng', 'trung tâm'],
+            
+            # People relationships
+            'person': ['bạn', 'gia đình', 'đồng nghiệp', 'thầy cô', 'anh chị', 'bố mẹ', 'người bạn', 'mọi người'],
+            
+            # Actions (verbs)
+            'action': ['đi', 'ăn', 'học', 'làm việc', 'chơi', 'xem', 'mua', 'đọc', 'viết', 'nấu ăn', 'tập thể dục'],
+            
+            # Places
+            'place': ['nhà hàng', 'trường học', 'công viên', 'chợ', 'thư viện', 'bảo tàng', 'rạp chiếu phim', 'quán cà phê'],
+            
+            # Feelings and emotions
+            'feeling': ['vui', 'hạnh phúc', 'thú vị', 'hài lòng', 'thoải mái', 'tự tin', 'biết ơn', 'phấn khích'],
+            
+            # Activities
+            'activity': ['đọc sách', 'xem phim', 'nghe nhạc', 'chơi game', 'tập thể thao', 'nấu ăn', 'vẽ tranh', 'chụp ảnh'],
+            
+            # Time periods
+            'time_period': ['buổi sáng', 'buổi trưa', 'buổi chiều', 'buổi tối', 'cuối tuần', 'ngày nghỉ', 'kỳ nghỉ'],
+            
+            # Leisure activities
+            'leisure_activity': ['đi dạo', 'đi du lịch', 'đi ăn', 'xem phim', 'chơi thể thao', 'đi mua sắm', 'thăm bạn bè'],
+            
+            # Companions
+            'companion': ['gia đình', 'bạn bè', 'đồng nghiệp', 'người yêu', 'anh chị em', 'bố mẹ'],
+            
+            # Products
+            'product': ['điện thoại', 'máy tính', 'sách', 'phim', 'ứng dụng', 'website', 'trò chơi', 'xe hơi'],
+            
+            # Quality descriptors
+            'quality': ['tuyệt vời', 'rất tốt', 'ổn', 'không tốt', 'xuất sắc', 'chất lượng cao', 'đáng tin cậy'],
+            
+            # Recommendations
+            'recommendation': ['rất khuyên', 'khuyên', 'không khuyên', 'giới thiệu', 'đề xuất'],
+            
+            # Business types
+            'business': ['nhà hàng', 'khách sạn', 'cửa hàng', 'siêu thị', 'quán cà phê', 'salon tóc', 'spa'],
+            
+            # Service quality
+            'service_quality': ['tốt', 'xuất sắc', 'chuyên nghiệp', 'thân thiện', 'nhanh chóng', 'chu đáo'],
+            
+            # Opinion details
+            'opinion_detail': ['Nhân viên rất thân thiện', 'Giá cả hợp lý', 'Không gian thoải mái', 'Chất lượng đảm bảo'],
+            
+            # Food items
+            'food': ['phở', 'bún bò Huế', 'bánh mì', 'cơm tấm', 'chả cá', 'nem rán', 'bánh cuốn'],
+            
+            # Taste descriptors
+            'taste': ['ngon', 'đậm đà', 'thanh mát', 'cay', 'ngọt', 'chua', 'mặn vừa'],
+            
+            # Cooking quality
+            'cooking_quality': ['tốt', 'cẩn thận', 'khéo léo', 'chuyên nghiệp', 'truyền thống'],
+            
+            # Events
+            'event': ['hội chợ', 'triển lãm', 'buổi hòa nhạc', 'lễ hội', 'hội thảo', 'cuộc thi', 'sự kiện'],
+            
+            # Event quality
+            'event_quality': ['thành công', 'sôi động', 'ý nghĩa', 'bổ ích', 'thú vị', 'ấn tượng'],
+            
+            # Venues
+            'venue': ['trung tâm hội nghị', 'nhà văn hóa', 'sân vận động', 'công viên', 'bảo tàng', 'rạp chiếu phim'],
+            
+            # Achievements
+            'achievement': ['thành tích', 'dự án', 'ý tưởng', 'kết quả', 'sáng kiến', 'giải pháp'],
+            
+            # Appreciation
+            'appreciation': ['ngưỡng mộ', 'trân trọng', 'tự hào', 'ấn tượng', 'đánh giá cao'],
+            
+            # Weather conditions
+            'weather_condition': ['đẹp', 'mát mẻ', 'nắng ấm', 'mưa nhẹ', 'trong lành', 'dễ chịu'],
+            
+            # Weather activities
+            'weather_activity': ['đi dạo', 'tập thể dục', 'đi picnic', 'chụp ảnh', 'đi du lịch'],
+            
+            # Seasons
+            'season': ['xuân', 'hạ', 'thu', 'đông', 'mùa mưa', 'mùa khô'],
+            
+            # Seasonal quality
+            'seasonal_quality': ['đẹp', 'dễ chịu', 'thú vị', 'tuyệt vời', 'lãng mạn', 'trong lành'],
+            
+            # Future actions
+            'future_action': ['đi du lịch', 'tham gia hội thảo', 'gặp gỡ bạn bè', 'học tập', 'làm việc'],
+            
+            # Destinations
+            'destination': ['Hà Nội', 'Sài Gòn', 'Đà Lạt', 'Phú Quốc', 'Hạ Long', 'Sapa', 'Nha Trang'],
+            
+            # Plans
+            'plan': ['du lịch', 'học tập', 'làm việc', 'khởi nghiệp', 'phát triển kỹ năng'],
+            
+            # Future time
+            'future_time': ['tháng tới', 'năm sau', 'mùa hè', 'cuối năm', 'kỳ nghỉ'],
+            
+            # Subjects (academic/professional)
+            'subject': ['lập trình', 'tiếng Anh', 'kinh doanh', 'marketing', 'thiết kế', 'kỹ thuật', 'y học'],
+            
+            # Learning goals
+            'learning_goal': ['phát triển sự nghiệp', 'nâng cao kỹ năng', 'tìm việc làm tốt', 'khởi nghiệp'],
+            
+            # Technology
+            'technology': ['trí tuệ nhân tạo', 'học máy', 'blockchain', 'điện toán đám mây', 'IoT', '5G'],
+            
+            # Benefits
+            'benefit': ['cải thiện hiệu quả', 'tiết kiệm thời gian', 'tăng năng suất', 'giải quyết vấn đề'],
+            
+            # Fields
+            'field': ['giáo dục', 'y tế', 'kinh doanh', 'nông nghiệp', 'du lịch', 'giao thông'],
+            
+            # Programming languages
+            'programming_language': ['Python', 'JavaScript', 'Java', 'C++', 'React', 'Node.js'],
+            
+            # Learning difficulty
+            'learning_difficulty': ['dễ học', 'khó', 'thách thức', 'phức tạp', 'đòi hỏi kiên nhẫn'],
+            
+            # Rewards
+            'reward': ['thú vị', 'bổ ích', 'đáng giá', 'mang lại cơ hội tốt', 'phát triển tư duy'],
+            
+            # Topics
+            'topic': ['công việc', 'cuộc sống', 'gia đình', 'sở thích', 'kế hoạch tương lai', 'kinh nghiệm'],
+            
+            # Reactions
+            'reaction': ['thú vị', 'bổ ích', 'ấn tượng', 'học hỏi được nhiều', 'đáng suy ngẫm'],
+            
+            # Family activities
+            'family_activity': ['ăn cơm cùng nhau', 'đi du lịch', 'xem phim', 'nấu ăn', 'dọn dẹp nhà cửa'],
+            
+            # Family time
+            'family_time': ['cuối tuần', 'ngày nghỉ', 'buổi tối', 'dịp lễ', 'kỳ nghỉ hè'],
+            
+            # Social activities
+            'social_activity': ['gặp gỡ', 'trò chuyện', 'ăn uống', 'chơi game', 'thể thao', 'karaoke'],
+            
+            # Social venues
+            'social_venue': ['quán cà phê', 'nhà hàng', 'công viên', 'trung tâm thương mại', 'sân thể thao']
         }
     
     def generate_english_sentence(self) -> str:
