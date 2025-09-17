@@ -51,9 +51,11 @@ Where:
 ### Key Properties
 
 **Probability Distribution**
+
 $$ \sum_{i=1}^{n} \text{softmax}(x_i) = 1 $$
 
 **Non-negative Output**
+
 $$ \text{softmax}(x_i) \geq 0 \quad \forall i $$
 
 **Monotonic Preservation**
