@@ -418,9 +418,9 @@ graph TD
 
 **For inline LaTeX expressions, use single dollar signs:**
 ```markdown
-Correct: `$h_t$: Hidden state at time step t`
-Correct: The probability `$P(y_t | x_1, ..., x_t)$` represents...
-Wrong: `$$h_t$$: Hidden state at time step t`
+Correct: $h_t$: Hidden state at time step t
+Correct: The probability $P(y_t | x_1, ..., x_t)$ represents...
+Wrong: $$h_t$$: Hidden state at time step t
 ```
 
 **For complex or standalone formulas, use double dollar signs in separate paragraphs:**
@@ -443,13 +443,13 @@ $$ f(r) = \frac{k}{r^\alpha} $$
 
 **Example of proper mathematical documentation:**
 ```markdown
-The LSTM cell uses three gates to control information flow. The forget gate `$f_t$` determines what information to discard:
+The LSTM cell uses three gates to control information flow. The forget gate $f_t$ determines what information to discard:
 
 $$ f_t = \sigma(W_f \cdot [h_{t-1}, x_t] + b_f) $$
 
-Where `$\sigma$` is the sigmoid function, `$W_f$` is the weight matrix, and `$b_f$` is the bias vector.
+Where $\sigma$ is the sigmoid function, $W_f$ is the weight matrix, and $b_f$ is the bias vector.
 
-For machine translation tasks like English-Vietnamese translation, the probability of generating Vietnamese word `$v_t$` given English context can be expressed as:
+For machine translation tasks like English-Vietnamese translation, the probability of generating Vietnamese word $v_t$ given English context can be expressed as:
 
 $$ P(v_t | \text{English context}) = \text{softmax}(W_v \cdot h_t + b_v) $$
 

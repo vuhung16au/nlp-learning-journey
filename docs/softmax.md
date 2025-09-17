@@ -39,13 +39,13 @@ Imagine choosing what to order at a restaurant:
 
 ### Basic Definition
 
-For a vector `$\mathbf{x} = [x_1, x_2, ..., x_n]$`, the softmax function is defined as:
+For a vector $\mathbf{x} = [x_1, x_2, ..., x_n]$, the softmax function is defined as:
 
 $$ \text{softmax}(x_i) = \frac{e^{x_i}}{\sum_{j=1}^{n} e^{x_j}} $$
 
 Where:
-- `$x_i$` is the i-th element of the input vector
-- `$e$` is Euler's number (≈ 2.718)
+- $x_i$ is the i-th element of the input vector
+- $e$ is Euler's number (≈ 2.718)
 - The denominator ensures all outputs sum to 1
 
 ### Key Properties
@@ -57,7 +57,7 @@ $$ \sum_{i=1}^{n} \text{softmax}(x_i) = 1 $$
 $$ \text{softmax}(x_i) \geq 0 \quad \forall i $$
 
 **Monotonic Preservation**
-If `$x_i > x_j$`, then `$\text{softmax}(x_i) > \text{softmax}(x_j)$`
+If $x_i > x_j$, then $\text{softmax}(x_i) > \text{softmax}(x_j)$
 
 ### Visual Representation
 
@@ -154,11 +154,11 @@ Controls the "sharpness" of the probability distribution:
 $$ \text{softmax}_T(x_i) = \frac{e^{x_i/T}}{\sum_{j=1}^{n} e^{x_j/T}} $$
 
 **Temperature Effects:**
-- `$T = 1$`: Standard softmax
-- `$T > 1$`: Smoother distribution (more uniform)
-- `$T < 1$`: Sharper distribution (more peaked)
-- `$T \to 0$`: Approaches hard max (one-hot)
-- `$T \to \infty$`: Approaches uniform distribution
+- $T = 1$: Standard softmax
+- $T > 1$: Smoother distribution (more uniform)
+- $T < 1$: Sharper distribution (more peaked)
+- $T \to 0$: Approaches hard max (one-hot)
+- $T \to \infty$: Approaches uniform distribution
 
 **Applications:**
 - **Text generation**: Control randomness in language models
@@ -172,7 +172,7 @@ Prevents numerical overflow in implementation:
 $$ \text{softmax}(x_i) = \frac{e^{x_i - \max(\mathbf{x})}}{\sum_{j=1}^{n} e^{x_j - \max(\mathbf{x})}} $$
 
 **Why needed:**
-- Large input values can cause `$e^{x_i}$` to overflow
+- Large input values can cause $e^{x_i}$ to overflow
 - Subtracting the maximum keeps values in a reasonable range
 - Mathematically equivalent to standard softmax
 
@@ -412,7 +412,7 @@ print(f"Stable result: {stable_result}")
 ### 4. Gradient Flow
 
 **Softmax has well-behaved gradients:**
-- Derivative: `$\frac{\partial \text{softmax}(x_i)}{\partial x_j} = \text{softmax}(x_i)(\delta_{ij} - \text{softmax}(x_j))$`
+- Derivative: $\frac{\partial \text{softmax}(x_i)}{\partial x_j} = \text{softmax}(x_i)(\delta_{ij} - \text{softmax}(x_j))$
 - No vanishing gradient problems (unlike sigmoid for large inputs)
 - Naturally works with cross-entropy loss
 
