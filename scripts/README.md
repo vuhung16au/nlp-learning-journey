@@ -114,7 +114,7 @@ python synthetic-data.py --output /path/to/custom/directory
 
 ### Japanese Data
 - **Content Types**: Daily conversations, business communications, social interactions
-- **Script**: Romanized Japanese (romaji) for compatibility
+- **Script**: Native Japanese characters (Hiragana, Katakana, Kanji)
 - **Vocabulary**: Common Japanese words and phrases
 - **Structure**: Natural Japanese sentence patterns and grammar
 
@@ -199,13 +199,11 @@ The script includes built-in validation:
 ## 🚨 Limitations
 
 ### Current Limitations
-1. **Japanese Text**: Uses romanized form instead of native scripts (Hiragana/Katakana/Kanji)
-2. **Template Dependency**: Generated text follows predefined patterns
-3. **Semantic Coherence**: Individual sentences, not coherent long-form text
-4. **Domain Specificity**: Limited to general-purpose content
+1. **Template Dependency**: Generated text follows predefined patterns
+2. **Semantic Coherence**: Individual sentences, not coherent long-form text
+3. **Domain Specificity**: Limited to general-purpose content
 
 ### Future Improvements
-- Native script support for Japanese (Hiragana, Katakana, Kanji)
 - Advanced context awareness for better text coherence
 - Domain-specific templates (legal, medical, technical)
 - Integration with neural language models for more natural text

@@ -73,37 +73,37 @@ class SyntheticTextGenerator:
             'object': ['new policies', 'updates', 'improvements', 'changes', 'initiatives', 'programs']
         }
         
-        # Japanese templates (romanized for compatibility)
+        # Japanese templates (using proper Japanese characters)
         self.japanese_templates = [
-            "Kyou wa {weather} desu. {activity} wo shimashita.",
-            "{place} de {event} ga arimashita. Totemo {adjective} deshita.",
-            "{person} san wa {action} shimashita. {feeling} desu.",
-            "{time} ni {location} de {meeting} ga arimasu.",
-            "{product} wo {action} mashita. {opinion} to omoimasu.",
-            "{season} ni natte, {activity} ga {adjective} ni narimashita.",
-            "{company} no {service} wa {quality} desu.",
-            "Ashita {plan} desu. {feeling} shite imasu."
+            "今日は{weather}です。{activity}をしました。",
+            "{place}で{event}がありました。とても{adjective}でした。",
+            "{person}さんは{action}しました。{feeling}です。",
+            "{time}に{location}で{meeting}があります。",
+            "{product}を{action}ました。{opinion}と思います。",
+            "{season}になって、{activity}が{adjective}になりました。",
+            "{company}の{service}は{quality}です。",
+            "明日{plan}です。{feeling}しています。"
         ]
         
         self.japanese_vocab = {
-            'weather': ['ii tenki', 'ame', 'yuki', 'kumori', 'hare'],
-            'activity': ['benkyou', 'shigoto', 'ryokou', 'kaimono', 'undou'],
-            'place': ['Tokyo', 'Osaka', 'Kyoto', 'Yokohama', 'Kobe'],
-            'event': ['matsuri', 'kaigi', 'paatii', 'konsaato', 'tenrankai'],
-            'adjective': ['tanoshii', 'tsumaranai', 'muzukashii', 'yasashii', 'oishii'],
-            'person': ['tomodachi', 'kazoku', 'sensei', 'dooryou', 'senpai'],
-            'action': ['taberu', 'nomu', 'iku', 'kuru', 'miru'],
-            'feeling': ['ureshii', 'kanashii', 'tanoshii', 'shinpai', 'anshin'],
-            'time': ['asa', 'hiru', 'yoru', 'ashita', 'kyou'],
-            'location': ['eki', 'gakkou', 'kaisha', 'ie', 'mise'],
-            'meeting': ['kaigi', 'awakai', 'mendan', 'uchiawase', 'hanashiai'],
-            'product': ['hon', 'eiga', 'geemu', 'kuruma', 'keitai'],
-            'opinion': ['ii', 'warui', 'futsuu', 'suki', 'kirai'],
-            'season': ['haru', 'natsu', 'aki', 'fuyu'],
-            'company': ['kaisha', 'mise', 'gakkou', 'byouin', 'ginkou'],
-            'service': ['saabisu', 'shina', 'ryouri', 'shigoto', 'tetsudai'],
-            'quality': ['ii', 'warui', 'futsuu', 'subarashii', 'zannen'],
-            'plan': ['ryokou', 'kaigi', 'paatii', 'benkyou', 'yasumi']
+            'weather': ['いい天気', '雨', '雪', '曇り', '晴れ'],
+            'activity': ['勉強', '仕事', '旅行', '買い物', '運動'],
+            'place': ['東京', '大阪', '京都', '横浜', '神戸'],
+            'event': ['祭り', '会議', 'パーティー', 'コンサート', '展覧会'],
+            'adjective': ['楽しい', 'つまらない', '難しい', '優しい', '美味しい'],
+            'person': ['友達', '家族', '先生', '同僚', '先輩'],
+            'action': ['食べ', '飲み', '行き', '来', '見'],
+            'feeling': ['嬉しい', '悲しい', '楽しい', '心配', '安心'],
+            'time': ['朝', '昼', '夜', '明日', '今日'],
+            'location': ['駅', '学校', '会社', '家', '店'],
+            'meeting': ['会議', '打ち合わせ', '面談', '打合せ', '話し合い'],
+            'product': ['本', '映画', 'ゲーム', '車', '携帯'],
+            'opinion': ['いい', '悪い', '普通', '好き', '嫌い'],
+            'season': ['春', '夏', '秋', '冬'],
+            'company': ['会社', '店', '学校', '病院', '銀行'],
+            'service': ['サービス', '品', '料理', '仕事', '手伝い'],
+            'quality': ['いい', '悪い', '普通', '素晴らしい', '残念'],
+            'plan': ['旅行', '会議', 'パーティー', '勉強', '休み']
         }
         
         # Vietnamese templates
