@@ -54,11 +54,12 @@ Understanding Natural Language Processing fundamentals is absolutely essential b
 - **Transfer Learning**: LLMs rely heavily on transfer learning concepts
 
 **Mathematical Foundations**
-```python
-# Understanding attention helps you grasp LLM internals
-# Attention(Q, K, V) = softmax(QK^T / √d_k)V
-# This fundamental operation is replicated thousands of times in LLMs
-```
+
+Understanding attention mechanisms helps you grasp LLM internals. The attention mechanism is defined mathematically as:
+
+$$ \text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V $$
+
+Where $Q$ is the query matrix, $K$ is the key matrix, $V$ is the value matrix, and $d_k$ is the dimension of the key vectors. This fundamental operation is replicated thousands of times in LLMs across multiple attention heads and layers.
 
 ### 3. **Problem-Solving Approach**
 
