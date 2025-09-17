@@ -68,6 +68,125 @@ The repository uses these essential libraries:
 
 **IMPORTANT**: Some notebooks (like tokenization.ipynb) require internet access to download pre-trained models from Hugging Face. In offline environments, these cells will fail with network errors - this is expected behavior.
 
+### Keras/TensorFlow Logging Policy
+
+**ALL notebooks in `examples/*.ipynb` that use TensorFlow/Keras for model training MUST implement TensorBoard logging for training visualization and monitoring.**
+
+#### Platform-Specific Log Directory Configuration:
+
+```python
+import os
+import time
+
+# Platform-specific TensorFlow log directory setup
+if IS_COLAB:
+    # Google Colab: Save logs to /content/tensorflow_logs
+    root_logdir = "/content/tensorflow_logs"
+elif IS_KAGGLE:
+    # Kaggle: Save logs to ./tensorflow_logs/
+    root_logdir = "./tensorflow_logs"
+else:
+    # Local: Save logs to <project-folder>/tensorflow_logs/
+    root_logdir = os.path.join(os.getcwd(), "tensorflow_logs")
+
+# Create log directory if it doesn't exist
+os.makedirs(root_logdir, exist_ok=True)
+
+def get_run_logdir(experiment_name="run"):
+    """Generate unique run directory for TensorBoard logs."""
+    run_id = time.strftime(f"{experiment_name}_%Y_%m_%d-%H_%M_%S")
+    return os.path.join(root_logdir, run_id)
+```
+
+#### Required TensorBoard Callback Integration:
+
+**ALWAYS include TensorBoard callback when training Keras models:**
+
+```python
+from tensorflow import keras
+
+# Generate unique log directory for this training run
+run_logdir = get_run_logdir("model_training")  # e.g., './tensorflow_logs/model_training_2024_01_15-14_30_22'
+
+# Define callbacks including TensorBoard
+callbacks = [
+    # TensorBoard callback - REQUIRED for all training
+    keras.callbacks.TensorBoard(
+        log_dir=run_logdir,
+        histogram_freq=1,           # Log weight histograms every epoch
+        write_graph=True,           # Log model graph
+        write_images=True,          # Log model weights as images
+        update_freq='epoch',        # Log metrics every epoch
+        profile_batch=0             # Disable profiling for performance
+    ),
+    # Standard callbacks for training optimization
+    keras.callbacks.EarlyStopping(patience=5, restore_best_weights=True),
+    keras.callbacks.ReduceLROnPlateau(factor=0.5, patience=3, min_lr=1e-6)
+]
+
+# Train model with TensorBoard logging
+history = model.fit(
+    X_train, y_train,
+    epochs=30,
+    validation_data=(X_valid, y_valid),
+    callbacks=callbacks,
+    verbose=1
+)
+
+print(f"\n📊 TensorBoard logs saved to: {run_logdir}")
+print(f"💡 To view logs, run: tensorboard --logdir={run_logdir}")
+```
+
+#### TensorBoard Viewing Instructions:
+
+**Include these instructions in notebooks after training:**
+
+```python
+# Display TensorBoard viewing instructions
+print("=" * 60)
+print("📊 TENSORBOARD VISUALIZATION")
+print("=" * 60)
+print(f"Log directory: {run_logdir}")
+print("\n🚀 To view TensorBoard:")
+
+if IS_COLAB:
+    print("   In Google Colab:")
+    print("   1. Run: %load_ext tensorboard")
+    print(f"   2. Run: %tensorboard --logdir {run_logdir}")
+    print("   3. TensorBoard will appear inline in the notebook")
+elif IS_KAGGLE:
+    print("   In Kaggle:")
+    print(f"   1. Download logs from: {root_logdir}")
+    print("   2. Run locally: tensorboard --logdir ./tensorflow_logs")
+    print("   3. Open http://localhost:6006 in browser")
+else:
+    print("   Locally:")
+    print(f"   1. Run: tensorboard --logdir {run_logdir}")
+    print("   2. Open http://localhost:6006 in browser")
+
+print("\n📈 Available visualizations:")
+print("   • Scalars: Loss, accuracy, learning rate over time")
+print("   • Histograms: Weight and bias distributions")
+print("   • Graphs: Model architecture visualization")
+print("   • Images: Weight matrices as heatmaps")
+print("=" * 60)
+```
+
+#### Logging Best Practices:
+
+1. **Unique Run Names**: Use descriptive experiment names for easy identification
+2. **Log Preservation**: Never delete logs during notebook execution
+3. **Directory Structure**: Organize logs by model type and experiment date
+4. **Memory Management**: Use `profile_batch=0` to prevent memory issues
+5. **Documentation**: Always print log directory location after training
+
+#### Implementation Requirements:
+
+- **MANDATORY**: All TensorFlow/Keras training must include TensorBoard callback
+- **PLATFORM SUPPORT**: Log directory setup must work across Colab, Kaggle, and local environments
+- **USER GUIDANCE**: Include viewing instructions in every training notebook
+- **CONSISTENCY**: Use standardized callback configuration across all notebooks
+
 ### Runtime Environment Detection
 All Jupyter notebooks in this repository include automatic runtime environment detection to ensure compatibility across Google Colab, Kaggle, and local environments. Use this pattern in new notebooks:
 
@@ -75,6 +194,8 @@ All Jupyter notebooks in this repository include automatic runtime environment d
 # Environment Detection and Setup
 import sys
 import subprocess
+import os
+import time
 
 # Detect the runtime environment
 IS_COLAB = "google.colab" in sys.modules
@@ -96,6 +217,25 @@ elif IS_KAGGLE:
     # Kaggle usually has most packages pre-installed
 else:
     print("\nSetting up local environment...")
+
+# TensorFlow logging setup (for notebooks that use TensorFlow/Keras)
+def setup_tensorflow_logging():
+    """Setup platform-specific TensorFlow logging directories."""
+    if IS_COLAB:
+        root_logdir = "/content/tensorflow_logs"
+    elif IS_KAGGLE:
+        root_logdir = "./tensorflow_logs"
+    else:
+        root_logdir = os.path.join(os.getcwd(), "tensorflow_logs")
+    
+    os.makedirs(root_logdir, exist_ok=True)
+    return root_logdir
+
+def get_run_logdir(experiment_name="run"):
+    """Generate unique run directory for TensorBoard logs."""
+    root_logdir = setup_tensorflow_logging()
+    run_id = time.strftime(f"{experiment_name}_%Y_%m_%d-%H_%M_%S")
+    return os.path.join(root_logdir, run_id)
 
 # Install required packages for this notebook
 required_packages = [
@@ -229,7 +369,54 @@ for package in required_packages:
    "
    ```
 
-**Manual Validation Requirement**: After any significant changes, run all seven validation tests to ensure the environment remains functional.
+8. **TensorFlow Logging Setup Test** (should complete in 2-3 seconds):
+   ```bash
+   python -c "
+   import sys
+   import os
+   import time
+   import tempfile
+   
+   # Test TensorFlow logging setup pattern
+   IS_COLAB = 'google.colab' in sys.modules
+   IS_KAGGLE = 'kaggle_secrets' in sys.modules
+   IS_LOCAL = not (IS_COLAB or IS_KAGGLE)
+   
+   def setup_tensorflow_logging():
+       if IS_COLAB:
+           root_logdir = '/content/tensorflow_logs'
+       elif IS_KAGGLE:
+           root_logdir = './tensorflow_logs'
+       else:
+           # Use temp directory for testing to avoid creating logs in repo
+           root_logdir = os.path.join(tempfile.gettempdir(), 'tensorflow_logs')
+       
+       os.makedirs(root_logdir, exist_ok=True)
+       return root_logdir
+   
+   def get_run_logdir(experiment_name='test_run'):
+       root_logdir = setup_tensorflow_logging()
+       run_id = time.strftime(f'{experiment_name}_%Y_%m_%d-%H_%M_%S')
+       return os.path.join(root_logdir, run_id)
+   
+   # Test logging directory creation
+   test_logdir = get_run_logdir('validation_test')
+   os.makedirs(test_logdir, exist_ok=True)
+   
+   print('TensorFlow logging setup:')
+   print(f'  - Environment: {\"Colab\" if IS_COLAB else \"Kaggle\" if IS_KAGGLE else \"Local\"}')
+   print(f'  - Log directory created: {os.path.exists(test_logdir)}')
+   print(f'  - Directory path: {test_logdir}')
+   
+   # Cleanup test directory
+   import shutil
+   shutil.rmtree(os.path.dirname(test_logdir), ignore_errors=True)
+   
+   print('✓ TensorFlow logging setup working correctly!')
+   "
+   ```
+
+**Manual Validation Requirement**: After any significant changes, run all eight validation tests to ensure the environment remains functional.
 
 ## Repository Structure and Navigation
 
@@ -281,6 +468,8 @@ for package in required_packages:
 - **Test on multiple environments** when possible (local, Colab, Kaggle)
 - **Handle network dependencies gracefully** - wrap model downloads in try-catch blocks
 - **Include clear error messages** for missing dependencies or network issues
+- **MANDATORY TensorBoard logging** - All TensorFlow/Keras training must include TensorBoard callback
+- **Log directory standards** - Use platform-specific log directories as defined in the Keras logging policy
 
 ### For Code Development:
 1. Always run the validation scenarios after changes
@@ -312,6 +501,14 @@ for package in required_packages:
 - **Vietnamese diacritics**: Verify Vietnamese text displays correctly: "Tên tôi là" should show all accents
 - **Cross-lingual models**: Some models may require specific language codes ('vi' for Vietnamese, 'en' for English)
 
+### TensorFlow Logging Issues:
+- **Log directory permissions**: Ensure write permissions for the log directory
+- **TensorBoard not starting**: Check if port 6006 is available or specify a different port
+- **Missing logs**: Verify TensorBoard callback is included in the callbacks list
+- **Large log files**: Use `profile_batch=0` to prevent excessive profiling data
+- **Colab TensorBoard errors**: Use `%load_ext tensorboard` before `%tensorboard --logdir`
+- **Log directory cleanup**: Never delete logs during training; create new run directories instead
+
 ### Performance Expectations:
 - **Environment setup**: 5-8 minutes total
 - **Individual notebook execution**: 30 seconds to 2 minutes (without network downloads)
@@ -338,6 +535,8 @@ for package in required_packages:
 - **Always include runtime environment detection** in new notebooks
 - **Use platform-specific installation methods** to ensure compatibility across Colab, Kaggle, and local environments
 - **Test notebooks on multiple platforms** when possible to ensure cross-platform compatibility
+- **MANDATORY TensorBoard logging** for all TensorFlow/Keras training notebooks
+- **Standardized callback configuration** - Use consistent TensorBoard callback settings across notebooks
 
 ## Limitations and Known Issues
 
@@ -360,6 +559,7 @@ python -c "import spacy; nlp = spacy.load('en_core_web_sm'); print('spaCy OK')"
 python -c "from nltk.tokenize import word_tokenize; print('NLTK OK')"
 python -c "from sklearn.feature_extraction.text import TfidfVectorizer; print('sklearn OK')"
 python -c "import sys; IS_COLAB = 'google.colab' in sys.modules; IS_KAGGLE = 'kaggle_secrets' in sys.modules; IS_LOCAL = not (IS_COLAB or IS_KAGGLE); assert sum([IS_LOCAL, IS_COLAB, IS_KAGGLE]) == 1; print('Environment detection OK')"
+python -c "import sys, os, time, tempfile; IS_COLAB = 'google.colab' in sys.modules; IS_KAGGLE = 'kaggle_secrets' in sys.modules; IS_LOCAL = not (IS_COLAB or IS_KAGGLE); root_logdir = '/content/tensorflow_logs' if IS_COLAB else './tensorflow_logs' if IS_KAGGLE else os.path.join(tempfile.gettempdir(), 'tensorflow_logs'); os.makedirs(root_logdir, exist_ok=True); print('TensorFlow logging setup OK')"
 
 # Test Vietnamese/English processing
 python -c "
