@@ -89,6 +89,142 @@ graph LR
 - Uses masked self-attention (can only see previous tokens)
 - Also attends to encoder outputs (cross-attention)
 
+### Complete Transformer Architecture
+
+The following diagram shows the complete transformer architecture as described in "Attention Is All You Need":
+
+```mermaid
+graph TD
+    %% Input and Embedding
+    I[Inputs] --> IE[Input<br/>Embedding]
+    PE1((Positional<br/>Encoding)) --> IPE[⊕]
+    IE --> IPE
+    
+    %% Output and Embedding  
+    O[Outputs<br/>shifted right] --> OE[Output<br/>Embedding]
+    PE2((Positional<br/>Encoding)) --> OPE[⊕]
+    OE --> OPE
+    
+    %% Encoder Stack
+    subgraph ENC[" "]
+        direction TB
+        IPE --> E_MHA1[Multi-Head<br/>Attention]
+        E_MHA1 --> E_AN1[Add & Norm]
+        E_AN1 --> E_FF1[Feed<br/>Forward]
+        E_FF1 --> E_AN2[Add & Norm]
+        
+        E_AN2 --> E_MHA2[Multi-Head<br/>Attention]
+        E_MHA2 --> E_AN3[Add & Norm]
+        E_AN3 --> E_FF2[Feed<br/>Forward]
+        E_FF2 --> E_OUT[Add & Norm]
+    end
+    
+    %% Decoder Stack
+    subgraph DEC[" "]
+        direction TB
+        OPE --> D_MMHA1[Masked<br/>Multi-Head<br/>Attention]
+        D_MMHA1 --> D_AN1[Add & Norm]
+        D_AN1 --> D_MHA1[Multi-Head<br/>Attention]
+        D_MHA1 --> D_AN2[Add & Norm]
+        D_AN2 --> D_FF1[Feed<br/>Forward]
+        D_FF1 --> D_AN3[Add & Norm]
+        
+        D_AN3 --> D_MMHA2[Masked<br/>Multi-Head<br/>Attention]
+        D_MMHA2 --> D_AN4[Add & Norm]
+        D_AN4 --> D_MHA2[Multi-Head<br/>Attention]
+        D_MHA2 --> D_AN5[Add & Norm]
+        D_AN5 --> D_FF2[Feed<br/>Forward]
+        D_FF2 --> D_OUT[Add & Norm]
+    end
+    
+    %% Final Output Layers
+    D_OUT --> LINEAR[Linear]
+    LINEAR --> SOFTMAX[Softmax]
+    SOFTMAX --> OUTPUT[Output<br/>Probabilities]
+    
+    %% Cross-attention connections (encoder to decoder)
+    E_OUT -.-> D_MHA1
+    E_OUT -.-> D_MHA2
+    
+    %% Residual connections (simplified representation)
+    IPE -.-> E_AN1
+    E_AN1 -.-> E_AN2
+    E_AN2 -.-> E_AN3
+    E_AN3 -.-> E_OUT
+    
+    OPE -.-> D_AN1
+    D_AN1 -.-> D_AN2
+    D_AN2 -.-> D_AN3
+    D_AN3 -.-> D_AN4
+    D_AN4 -.-> D_AN5
+    D_AN5 -.-> D_OUT
+    
+    %% Styling - Embeddings
+    style IE fill:#FFFFFF,stroke:#582C67,color:#333,stroke-width:2px
+    style OE fill:#FFFFFF,stroke:#582C67,color:#333,stroke-width:2px
+    style PE1 fill:#C60C30,stroke:#582C67,color:#FFFFFF,stroke-width:2px
+    style PE2 fill:#C60C30,stroke:#582C67,color:#FFFFFF,stroke-width:2px
+    style IPE fill:#FFFFFF,stroke:#582C67,color:#333,stroke-width:2px
+    style OPE fill:#FFFFFF,stroke:#582C67,color:#333,stroke-width:2px
+    
+    %% Styling - Attention layers
+    style E_MHA1 fill:#582C67,stroke:#C60C30,color:#FFFFFF,stroke-width:2px
+    style E_MHA2 fill:#582C67,stroke:#C60C30,color:#FFFFFF,stroke-width:2px
+    style D_MMHA1 fill:#582C67,stroke:#C60C30,color:#FFFFFF,stroke-width:2px
+    style D_MMHA2 fill:#582C67,stroke:#C60C30,color:#FFFFFF,stroke-width:2px
+    style D_MHA1 fill:#582C67,stroke:#C60C30,color:#FFFFFF,stroke-width:2px
+    style D_MHA2 fill:#582C67,stroke:#C60C30,color:#FFFFFF,stroke-width:2px
+    
+    %% Styling - Add & Norm layers
+    style E_AN1 fill:#FFFFFF,stroke:#582C67,color:#333,stroke-width:2px
+    style E_AN2 fill:#FFFFFF,stroke:#582C67,color:#333,stroke-width:2px
+    style E_AN3 fill:#FFFFFF,stroke:#582C67,color:#333,stroke-width:2px
+    style E_OUT fill:#FFFFFF,stroke:#582C67,color:#333,stroke-width:2px
+    style D_AN1 fill:#FFFFFF,stroke:#582C67,color:#333,stroke-width:2px
+    style D_AN2 fill:#FFFFFF,stroke:#582C67,color:#333,stroke-width:2px
+    style D_AN3 fill:#FFFFFF,stroke:#582C67,color:#333,stroke-width:2px
+    style D_AN4 fill:#FFFFFF,stroke:#582C67,color:#333,stroke-width:2px
+    style D_AN5 fill:#FFFFFF,stroke:#582C67,color:#333,stroke-width:2px
+    style D_OUT fill:#FFFFFF,stroke:#582C67,color:#333,stroke-width:2px
+    
+    %% Styling - Feed Forward layers
+    style E_FF1 fill:#C60C30,stroke:#582C67,color:#FFFFFF,stroke-width:2px
+    style E_FF2 fill:#C60C30,stroke:#582C67,color:#FFFFFF,stroke-width:2px
+    style D_FF1 fill:#C60C30,stroke:#582C67,color:#FFFFFF,stroke-width:2px
+    style D_FF2 fill:#C60C30,stroke:#582C67,color:#FFFFFF,stroke-width:2px
+    
+    %% Styling - Output layers
+    style LINEAR fill:#582C67,stroke:#C60C30,color:#FFFFFF,stroke-width:2px
+    style SOFTMAX fill:#C60C30,stroke:#582C67,color:#FFFFFF,stroke-width:2px
+    style OUTPUT fill:#FFFFFF,stroke:#582C67,color:#333,stroke-width:2px
+    
+    %% Styling - Subgraphs
+    style ENC fill:transparent,stroke:#666,stroke-width:2px,stroke-dasharray: 5 5
+    style DEC fill:transparent,stroke:#666,stroke-width:2px,stroke-dasharray: 5 5
+    
+    %% Add Nx labels
+    classDef nxLabel fill:transparent,stroke:transparent,color:#666,font-size:14px,font-weight:bold
+    
+    %% Position Nx labels outside the subgraphs
+    NX1[Nx]:::nxLabel
+    NX2[Nx]:::nxLabel
+```
+
+**Key Components Explained:**
+
+- **Input/Output Embeddings**: Convert tokens to dense vectors
+- **Positional Encoding**: Adds position information since attention is order-agnostic
+- **Multi-Head Attention**: Allows the model to attend to different representation subspaces
+- **Masked Multi-Head Attention**: Prevents the decoder from seeing future tokens during training
+- **Add & Norm**: Residual connections with layer normalization for stable training
+- **Feed Forward**: Point-wise neural networks for additional processing
+- **Linear + Softmax**: Final transformation to output vocabulary probabilities
+- **Nx**: Indicates the stack is repeated N times (typically 6 layers in the original paper)
+
+The dotted lines represent:
+- **Cross-attention connections**: Decoder attends to encoder outputs
+- **Residual connections**: Skip connections that help with gradient flow
+
 ## How Transformers are Used in NLP
 
 ### 1. Language Understanding (Encoder Models)
