@@ -83,11 +83,11 @@ graph TD
 
 **1. Causal Self-Attention**
 
-GPT uses **masked self-attention** to ensure that predictions for position `$i$` can only depend on positions less than `$i$`:
+GPT uses **masked self-attention** to ensure that predictions for position $i$ can only depend on positions less than $i$:
 
 $$ \text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T + M}{\sqrt{d_k}}\right)V $$
 
-Where `$M$` is a causal mask that sets future positions to negative infinity.
+Where $M$ is a causal mask that sets future positions to negative infinity.
 
 **2. Multi-Head Attention**
 
@@ -136,7 +136,7 @@ GPT is trained using **next-token prediction** with cross-entropy loss:
 
 $$ L = -\sum_{i=1}^{n} \log P(w_i | w_1, w_2, ..., w_{i-1}) $$
 
-Where `$P(w_i | w_1, ..., w_{i-1})$` is the probability of the `$i$`-th token given all previous tokens.
+Where $P(w_i | w_1, ..., w_{i-1})$ is the probability of the $i$-th token given all previous tokens.
 
 ### Inference Process
 
@@ -321,7 +321,7 @@ The model learns to minimize the negative log-likelihood of the training data:
 
 $$ \mathcal{L} = -\frac{1}{N}\sum_{i=1}^{N} \sum_{t=1}^{T} \log P(w_t^{(i)} | w_{<t}^{(i)}) $$
 
-Where `$N$` is the number of sequences and `$T$` is the sequence length.
+Where $N$ is the number of sequences and $T$ is the sequence length.
 
 ### Fine-tuning and Alignment
 

@@ -212,7 +212,7 @@ graph TD
 **Mathematical Formulation:**
 $$ L_{MLM} = -\sum_{i \in \mathcal{M}} \log P(x_i | x_{\setminus \mathcal{M}}) $$
 
-Where `$\mathcal{M}$` is the set of masked positions.
+Where $\mathcal{M}$ is the set of masked positions.
 
 #### Next Sentence Prediction (NSP)
 
@@ -308,7 +308,7 @@ graph TD
 - Improved understanding of complex grammatical structures
 
 **Mathematical Representation**
-For a word at position `$i$`, traditional models compute:
+For a word at position $i$, traditional models compute:
 $$ h_i = f(h_{i-1}, x_i) \quad \text{(left-to-right)} $$
 
 BERT computes:

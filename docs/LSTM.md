@@ -77,10 +77,10 @@ $$ o_t = \sigma(W_o \cdot [h_{t-1}, x_t] + b_o) $$
 $$ h_t = o_t * \tanh(C_t) $$
 
 Where:
-- `$\sigma$` is the sigmoid function
-- `$W$` are weight matrices
-- `$b$` are bias vectors
-- `$*$` denotes element-wise multiplication
+- $\sigma$ is the sigmoid function
+- $W$ are weight matrices
+- $b$ are bias vectors
+- $*$ denotes element-wise multiplication
 
 ### Key Advantages
 
@@ -132,7 +132,7 @@ timeline
 
 ### LSTM Cell State Flow
 
-The key innovation of LSTMs is the cell state `$C_t$`, which acts as a "conveyor belt" carrying information through time:
+The key innovation of LSTMs is the cell state $C_t$, which acts as a "conveyor belt" carrying information through time:
 
 ```mermaid
 graph LR
