@@ -23,18 +23,25 @@ Linear algebra forms the foundation of modern NLP, as text is represented using 
 
 **Vector Representation**
 - Text elements (words, sentences) are represented as vectors in high-dimensional space
-- Vector: $$ v = [v_1, v_2, ..., v_n] $$
+- Vector: 
+  $$ v = [v_1, v_2, ..., v_n] $$
 - Dimensionality typically ranges from 50 to 4096 in modern systems
 
 **Vector Operations**
-- **Addition**: $$ v + w = [v_1+w_1, v_2+w_2, ..., v_n+w_n] $$
-- **Scalar Multiplication**: $$ \alpha v = [\alpha v_1, \alpha v_2, ..., \alpha v_n] $$
-- **Dot Product**: $$ v \cdot w = \sum_i v_i w_i = v_1 w_1 + v_2 w_2 + ... + v_n w_n $$
+- **Addition**: 
+  $$ v + w = [v_1+w_1, v_2+w_2, ..., v_n+w_n] $$
+- **Scalar Multiplication**: 
+  $$ \alpha v = [\alpha v_1, \alpha v_2, ..., \alpha v_n] $$
+- **Dot Product**: 
+  $$ v \cdot w = \sum_i v_i w_i = v_1 w_1 + v_2 w_2 + ... + v_n w_n $$
 
 **Vector Norms**
-- **L1 Norm (Manhattan)**: $$ \|v\|_1 = \sum_i |v_i| $$
-- **L2 Norm (Euclidean)**: $$ \|v\|_2 = \sqrt{\sum_i v_i^2} $$
-- **L∞ Norm (Maximum)**: $$ \|v\|_\infty = \max_i |v_i| $$
+- **L1 Norm (Manhattan)**: 
+  $$ \|v\|_1 = \sum_i |v_i| $$
+- **L2 Norm (Euclidean)**: 
+  $$ \|v\|_2 = \sqrt{\sum_i v_i^2} $$
+- **L∞ Norm (Maximum)**: 
+  $$ \|v\|_\infty = \max_i |v_i| $$
 
 ### Matrices
 

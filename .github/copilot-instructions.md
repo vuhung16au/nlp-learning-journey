@@ -634,9 +634,20 @@ $$ \alpha_t(i) = P(x_1, x_2, ..., x_t, q_t = s_i | \lambda) $$
 $$ f(r) = \frac{k}{r^\alpha} $$
 ```
 
+**IMPORTANT - Double Dollar Positioning:**
+```markdown
+❌ Wrong - Double dollars inline with text:
+Output Layer Gradient: $$ \delta^{(L)} = \frac{\partial L}{\partial a^{(L)}} \odot f'(z^{(L)}) $$
+
+✅ Correct - Double dollars start from beginning of line:
+Output Layer Gradient: 
+$$ \delta^{(L)} = \frac{\partial L}{\partial a^{(L)}} \odot f'(z^{(L)}) $$
+```
+
 **LaTeX Best Practices:**
 - Use inline math (`$...$`) for variables, short expressions, and mathematical terms within sentences
 - Use block math (`$$...$$`) for complex formulas, equations, and mathematical expressions that deserve emphasis
+- **CRITICAL**: Double dollar signs (`$$`) MUST start from the beginning of a line, never inline with text
 - Always put block formulas in separate paragraphs for better readability
 - Include text explanations before or after complex formulas to provide context
 - Use consistent notation throughout the repository
