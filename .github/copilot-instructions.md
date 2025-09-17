@@ -4,6 +4,8 @@
 
 This repository is a comprehensive Natural Language Processing (NLP) learning resource containing documentation, example notebooks, and code implementations. It's designed as an educational repository for learning NLP concepts from fundamentals to advanced topics.
 
+**Language Focus**: This repository prioritizes Vietnamese/English examples for machine translation and cross-lingual NLP tasks, providing practical examples for Southeast Asian language processing.
+
 ## Working Effectively
 
 ### Bootstrap the Environment
@@ -304,6 +306,12 @@ for package in required_packages:
 - **Package installation errors**: Check if using correct installation method for detected environment
 - **Mixed environment detection**: Ensure only one of IS_LOCAL, IS_COLAB, IS_KAGGLE is True
 
+### Vietnamese Text Processing Issues:
+- **Vietnamese character encoding**: Ensure UTF-8 encoding when working with Vietnamese text
+- **Vietnamese tokenization**: Use proper Vietnamese tokenizers or multilingual models
+- **Vietnamese diacritics**: Verify Vietnamese text displays correctly: "Tên tôi là" should show all accents
+- **Cross-lingual models**: Some models may require specific language codes ('vi' for Vietnamese, 'en' for English)
+
 ### Performance Expectations:
 - **Environment setup**: 5-8 minutes total
 - **Individual notebook execution**: 30 seconds to 2 minutes (without network downloads)
@@ -486,5 +494,125 @@ The encoder processes the English tokens `["I", "love", "programming"]` while th
 ```
 
 These standards apply to all Markdown files in the repository, including documentation in `docs/`, README files, and example notebooks.
+
+## Vietnamese/English Examples for NLP Tasks
+
+**ALWAYS prioritize Vietnamese/English examples when creating documentation, tutorials, or example code, especially for machine translation tasks.**
+
+### Common Vietnamese/English Translation Pairs
+
+Use these translation pairs as standard examples throughout the repository:
+
+```python
+# Basic Greetings and Introductions
+VIETNAMESE_ENGLISH_PAIRS = [
+    # Basic phrases as requested in the issue
+    ("My name is", "Tên tôi là"),
+    ("Hello", "Xin chào"),
+    ("Thank you", "Cảm ơn"),
+    ("How are you?", "Bạn khỏe không?"),
+    ("Goodbye", "Tạm biệt"),
+    
+    # Common expressions
+    ("I love programming", "Tôi yêu lập trình"),
+    ("Machine learning", "Học máy"),
+    ("Natural language processing", "Xử lý ngôn ngữ tự nhiên"),
+    ("Artificial intelligence", "Trí tuệ nhân tạo"),
+    ("Good morning", "Chào buổi sáng"),
+    
+    # Everyday conversations
+    ("What is your name?", "Tên bạn là gì?"),
+    ("I am a student", "Tôi là sinh viên"),
+    ("Where are you from?", "Bạn đến từ đâu?"),
+    ("I am from Vietnam", "Tôi đến từ Việt Nam"),
+    ("Nice to meet you", "Rất vui được gặp bạn"),
+    
+    # Technical terms
+    ("Deep learning", "Học sâu"),
+    ("Neural network", "Mạng nơ-ron"),
+    ("Computer science", "Khoa học máy tính"),
+    ("Software development", "Phát triển phần mềm"),
+    ("Data analysis", "Phân tích dữ liệu")
+]
+```
+
+### Usage Guidelines
+
+**For translation examples:**
+- English: "My name is" → Vietnamese: "Tên tôi là" (as specified in the issue)
+- Always show both directions: English→Vietnamese and Vietnamese→English
+- Include proper Vietnamese diacritical marks (ă, â, ê, ô, ơ, ư, á, à, ả, ã, ạ, etc.)
+
+**For tokenization examples:**
+```python
+# English tokenization
+english_text = "My name is John."
+english_tokens = ["My", "name", "is", "John", "."]
+
+# Vietnamese tokenization  
+vietnamese_text = "Tên tôi là John."
+vietnamese_tokens = ["Tên", "tôi", "là", "John", "."]
+```
+
+**For NER examples:**
+```python
+# English NER
+english_text = "My name is John and I live in Vietnam."
+english_entities = [("John", "PERSON"), ("Vietnam", "GPE")]
+
+# Vietnamese NER
+vietnamese_text = "Tên tôi là John và tôi sống ở Việt Nam."
+vietnamese_entities = [("John", "PERSON"), ("Việt Nam", "GPE")]
+```
+
+**For sentiment analysis examples:**
+```python
+# Positive sentiment
+english_positive = "I love this product!"
+vietnamese_positive = "Tôi yêu sản phẩm này!"
+
+# Negative sentiment  
+english_negative = "This is terrible."
+vietnamese_negative = "Điều này thật tệ."
+```
+
+### Code Templates
+
+**Standard translation function template:**
+```python
+def translate_english_to_vietnamese(english_text: str) -> str:
+    """
+    Translate English text to Vietnamese.
+    
+    Example:
+        >>> translate_english_to_vietnamese("My name is")
+        "Tên tôi là"
+    """
+    # Implementation here
+    pass
+
+def translate_vietnamese_to_english(vietnamese_text: str) -> str:
+    """
+    Translate Vietnamese text to English.
+    
+    Example:
+        >>> translate_vietnamese_to_english("Tên tôi là")
+        "My name is"
+    """
+    # Implementation here
+    pass
+```
+
+**Standard bilingual dataset template:**
+```python
+def create_vietnamese_english_dataset():
+    """Create a bilingual dataset for Vietnamese-English translation."""
+    return [
+        {"english": "My name is", "vietnamese": "Tên tôi là"},
+        {"english": "Hello", "vietnamese": "Xin chào"},
+        {"english": "Thank you", "vietnamese": "Cảm ơn"},
+        # Add more pairs as needed
+    ]
+```
 
 Remember: This is an educational repository focused on learning NLP concepts. Always prioritize working examples and clear documentation over complex tooling or optimization.
