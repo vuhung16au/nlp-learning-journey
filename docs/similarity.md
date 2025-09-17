@@ -35,6 +35,21 @@ Text similarity goes beyond simple string matching. It needs to capture:
 - **Syntactic Similarity**: Grammatical structure patterns
 - **Contextual Similarity**: Meaning within specific contexts
 
+### Vietnamese/English Similarity Examples
+
+Understanding text similarity becomes more interesting when working with multiple languages. Consider these Vietnamese/English text pairs:
+
+**Translation Pairs (High Similarity)**:
+- English: "My name is John" ↔ Vietnamese: "Tên tôi là John"
+- English: "Hello world" ↔ Vietnamese: "Xin chào thế giới"
+- English: "Thank you very much" ↔ Vietnamese: "Cảm ơn rất nhiều"
+
+**Semantic Similarity Examples**:
+- English: "Machine learning is powerful" vs Vietnamese: "Học máy rất mạnh mẽ"
+- English: "I love programming" vs Vietnamese: "Tôi yêu lập trình"
+
+These examples demonstrate how similarity measures must handle both cross-lingual translation pairs and semantic relationships within the same concept expressed in different languages.
+
 ## Similarity Metrics
 
 Similarity metrics are mathematical functions that quantify the degree of similarity between text documents or representations. They provide a numerical score indicating how similar two texts are.
@@ -44,9 +59,8 @@ Similarity metrics are mathematical functions that quantify the degree of simila
 **Definition**: Measures the cosine of the angle between two vectors in a multi-dimensional space.
 
 **Formula**: 
-```
-cosine_similarity(A, B) = (A · B) / (||A|| × ||B||)
-```
+
+$$ \text{cosine\_similarity}(A, B) = \frac{A \cdot B}{||A|| \times ||B||} $$
 
 **Range**: [-1, 1] where 1 indicates identical vectors, 0 indicates orthogonal vectors, and -1 indicates opposite vectors.
 
@@ -64,9 +78,8 @@ cosine_similarity(A, B) = (A · B) / (||A|| × ||B||)
 **Definition**: Measures the straight-line distance between two points in vector space.
 
 **Formula**: 
-```
-euclidean_distance(A, B) = √(Σ(ai - bi)²)
-```
+
+$$ \text{euclidean\_distance}(A, B) = \sqrt{\sum_{i}(a_i - b_i)^2} $$
 
 **Range**: [0, ∞] where 0 indicates identical vectors.
 
@@ -84,9 +97,8 @@ euclidean_distance(A, B) = √(Σ(ai - bi)²)
 **Definition**: Sum of absolute differences between corresponding vector components.
 
 **Formula**: 
-```
-manhattan_distance(A, B) = Σ|ai - bi|
-```
+
+$$ \text{manhattan\_distance}(A, B) = \sum_{i}|a_i - b_i| $$
 
 **Advantages**:
 - Robust to outliers
@@ -102,9 +114,8 @@ manhattan_distance(A, B) = Σ|ai - bi|
 **Definition**: Measures similarity between finite sets, defined as the intersection over union.
 
 **Formula**: 
-```
-jaccard_similarity(A, B) = |A ∩ B| / |A ∪ B|
-```
+
+$$ \text{jaccard\_similarity}(A, B) = \frac{|A \cap B|}{|A \cup B|} $$
 
 **Range**: [0, 1] where 1 indicates identical sets.
 
@@ -116,6 +127,42 @@ jaccard_similarity(A, B) = |A ∩ B| / |A ∪ B|
 **Disadvantages**:
 - Ignores term frequency
 - Treats all words equally
+
+### Similarity Metrics Visualization
+
+The following diagram illustrates how different similarity metrics process text pairs to produce similarity scores:
+
+```mermaid
+graph TD
+    A[Input Text Pair:<br/>English: 'My name is John'<br/>Vietnamese: 'Tên tôi là John'] --> B[Text Preprocessing]
+    B --> C[Feature Extraction]
+    C --> D{Choose Similarity Metric}
+    
+    D --> E[Cosine Similarity<br/>Vector-based approach]
+    D --> F[Jaccard Similarity<br/>Set-based approach]
+    D --> G[Edit Distance<br/>Character-based approach]
+    
+    E --> H[Similarity Score: 0.85]
+    F --> I[Similarity Score: 0.60]
+    G --> J[Similarity Score: 0.25]
+    
+    H --> K[High Semantic Similarity]
+    I --> K
+    J --> L[Low Character Similarity]
+
+    style A fill:#FFFFFF,stroke:#582C67,color:#333,stroke-width:2px
+    style B fill:#582C67,stroke:#C60C30,color:#FFFFFF,stroke-width:2px
+    style C fill:#582C67,stroke:#C60C30,color:#FFFFFF,stroke-width:2px
+    style D fill:#C60C30,stroke:#582C67,color:#FFFFFF,stroke-width:2px
+    style E fill:#582C67,stroke:#C60C30,color:#FFFFFF,stroke-width:2px
+    style F fill:#582C67,stroke:#C60C30,color:#FFFFFF,stroke-width:2px
+    style G fill:#582C67,stroke:#C60C30,color:#FFFFFF,stroke-width:2px
+    style H fill:#FFFFFF,stroke:#582C67,color:#333,stroke-width:2px
+    style I fill:#FFFFFF,stroke:#582C67,color:#333,stroke-width:2px
+    style J fill:#FFFFFF,stroke:#582C67,color:#333,stroke-width:2px
+    style K fill:#FFFFFF,stroke:#582C67,color:#333,stroke-width:2px
+    style L fill:#FFFFFF,stroke:#582C67,color:#333,stroke-width:2px
+```
 
 ## Similarity Measures
 
@@ -281,6 +328,60 @@ def tfidf_similarity(text1, text2, corpus=None):
     # Get similarity between first two documents
     similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])
     return similarity[0][0]
+
+# Vietnamese/English similarity examples
+def vietnamese_english_similarity_examples():
+    """Demonstrate similarity calculations with Vietnamese/English text pairs."""
+    
+    # Translation pairs - should have high semantic similarity despite different languages
+    translation_pairs = [
+        ("My name is John", "Tên tôi là John"),
+        ("Hello world", "Xin chào thế giới"), 
+        ("Thank you", "Cảm ơn"),
+        ("Machine learning", "Học máy"),
+        ("I love programming", "Tôi yêu lập trình")
+    ]
+    
+    print("Vietnamese/English Translation Similarity Analysis:")
+    print("=" * 60)
+    
+    for english, vietnamese in translation_pairs:
+        # Calculate different similarity measures
+        jaccard_sim = jaccard_similarity_basic(english, vietnamese)
+        
+        print(f"English: '{english}'")
+        print(f"Vietnamese: '{vietnamese}'")
+        print(f"Jaccard Similarity: {jaccard_sim:.4f}")
+        print(f"Note: Low Jaccard due to different alphabets, but high semantic meaning")
+        print("-" * 40)
+    
+    # Same language comparisons
+    english_pairs = [
+        ("Hello world", "Hi world"),
+        ("My name is John", "I am called John"),
+        ("Thank you", "Thanks")
+    ]
+    
+    print("\nEnglish-English Similarity (for comparison):")
+    print("=" * 60)
+    
+    for text1, text2 in english_pairs:
+        jaccard_sim = jaccard_similarity_basic(text1, text2)
+        print(f"Text 1: '{text1}'")
+        print(f"Text 2: '{text2}'")
+        print(f"Jaccard Similarity: {jaccard_sim:.4f}")
+        print("-" * 40)
+
+def jaccard_similarity_basic(text1, text2):
+    """Basic Jaccard similarity for demonstration."""
+    words1 = set(text1.lower().split())
+    words2 = set(text2.lower().split())
+    intersection = words1.intersection(words2)
+    union = words1.union(words2)
+    return len(intersection) / len(union) if union else 0.0
+
+# Run the examples
+vietnamese_english_similarity_examples()
 ```
 
 #### Word2Vec Average Similarity
@@ -516,21 +617,56 @@ class TextSimilarityCalculator:
         
         return results
 
-# Example usage
+# Example usage with Vietnamese/English text pairs
 calculator = TextSimilarityCalculator()
 
-text1 = "The quick brown fox jumps over the lazy dog"
-text2 = "A fast brown fox leaps over a sleepy dog"
+# English examples
+text1_en = "The quick brown fox jumps over the lazy dog"
+text2_en = "A fast brown fox leaps over a sleepy dog"
 
-similarities = calculator.comprehensive_similarity(text1, text2)
-print("Similarity Results:")
-for method, score in similarities.items():
+# Vietnamese examples  
+text1_vi = "Con cáo nâu nhanh nhẹn nhảy qua con chó lười biếng"
+text2_vi = "Một con cáo nâu nhanh chạy qua một con chó buồn ngủ"
+
+# Cross-lingual examples (translations)
+text1_cross = "My name is John"
+text2_cross = "Tên tôi là John"
+
+print("=== English Text Similarity ===")
+similarities_en = calculator.comprehensive_similarity(text1_en, text2_en)
+print("English Text Similarity Results:")
+for method, score in similarities_en.items():
     if isinstance(score, dict):
         print(f"  {method}:")
         for sub_method, sub_score in score.items():
             print(f"    {sub_method}: {sub_score:.4f}")
     else:
         print(f"  {method}: {score:.4f}")
+
+print("\n=== Vietnamese Text Similarity ===") 
+similarities_vi = calculator.comprehensive_similarity(text1_vi, text2_vi)
+print("Vietnamese Text Similarity Results:")
+for method, score in similarities_vi.items():
+    if isinstance(score, dict):
+        print(f"  {method}:")
+        for sub_method, sub_score in score.items():
+            print(f"    {sub_method}: {sub_score:.4f}")
+    else:
+        print(f"  {method}: {score:.4f}")
+
+print("\n=== Cross-lingual Similarity (English ↔ Vietnamese) ===")
+similarities_cross = calculator.comprehensive_similarity(text1_cross, text2_cross)
+print("Cross-lingual Text Similarity Results:")
+for method, score in similarities_cross.items():
+    if isinstance(score, dict):
+        print(f"  {method}:")
+        for sub_method, sub_score in score.items():
+            print(f"    {sub_method}: {sub_score:.4f}")
+    else:
+        print(f"  {method}: {score:.4f}")
+
+print("\nNote: Cross-lingual similarities are typically lower due to different")
+print("alphabets and vocabularies, despite identical semantic meaning.")
 ```
 
 ### Specialized Implementation: Document Similarity Pipeline
@@ -672,28 +808,53 @@ class DocumentSimilarityPipeline:
         plt.ylabel('Document Index')
         plt.show()
 
-# Example usage
+# Example usage with multilingual documents
 pipeline = DocumentSimilarityPipeline(similarity_method='tfidf')
 
+# Sample documents with Vietnamese/English content
 sample_docs = [
     "Machine learning is a subset of artificial intelligence that focuses on algorithms.",
     "Deep learning uses neural networks with multiple layers to learn patterns.",
     "Natural language processing helps computers understand human language.",
     "Computer vision enables machines to interpret and understand visual information.",
-    "Artificial intelligence aims to create machines that can perform human-like tasks."
+    "Artificial intelligence aims to create machines that can perform human-like tasks.",
+    
+    # Vietnamese documents
+    "Học máy là một tập con của trí tuệ nhân tạo tập trung vào các thuật toán.",
+    "Học sâu sử dụng mạng nơ-ron với nhiều lớp để học các mẫu.",
+    "Xử lý ngôn ngữ tự nhiên giúp máy tính hiểu ngôn ngữ con người.",
+    "Thị giác máy tính cho phép máy móc diễn giải và hiểu thông tin hình ảnh.",
+    "Trí tuệ nhân tạo nhằm tạo ra những cỗ máy có thể thực hiện các nhiệm vụ giống con người."
 ]
 
 pipeline.add_documents(sample_docs)
 
-# Find similar documents
-query = "AI and machine learning technologies"
-similar_docs = pipeline.find_similar_documents(query, top_k=3)
+# Find similar documents for English query
+print("=== English Query Analysis ===")
+query_en = "AI and machine learning technologies"
+similar_docs_en = pipeline.find_similar_documents(query_en, top_k=3)
 
+print(f"Query: '{query_en}'")
 print("Most similar documents:")
-for i, result in enumerate(similar_docs, 1):
+for i, result in enumerate(similar_docs_en, 1):
     print(f"{i}. Similarity: {result['similarity_score']:.4f}")
     print(f"   Text: {result['document_text']}")
     print()
+
+# Find similar documents for Vietnamese query  
+print("=== Vietnamese Query Analysis ===")
+query_vi = "trí tuệ nhân tạo và công nghệ học máy"
+similar_docs_vi = pipeline.find_similar_documents(query_vi, top_k=3)
+
+print(f"Query: '{query_vi}' (Vietnamese: 'artificial intelligence and machine learning technology')")
+print("Most similar documents:")
+for i, result in enumerate(similar_docs_vi, 1):
+    print(f"{i}. Similarity: {result['similarity_score']:.4f}")
+    print(f"   Text: {result['document_text']}")
+    print()
+
+print("Note: Vietnamese queries will typically match Vietnamese documents better")
+print("due to vocabulary overlap, demonstrating language-specific similarity patterns.")
 ```
 
 ## Advanced Techniques
@@ -862,6 +1023,54 @@ def cluster_documents_by_similarity(documents, n_clusters=3):
         'silhouette_score': silhouette_avg,
         'cluster_centers': kmeans.cluster_centers_
     }
+
+# Vietnamese/English multilingual clustering example
+def multilingual_clustering_example():
+    """Demonstrate clustering with Vietnamese/English documents."""
+    
+    # Mixed Vietnamese/English documents about technology
+    documents = [
+        # English technology documents
+        "Machine learning algorithms can solve complex problems automatically.",
+        "Deep neural networks require large amounts of training data.",
+        "Natural language processing enables computers to understand text.",
+        
+        # Vietnamese technology documents  
+        "Thuật toán học máy có thể giải quyết các vấn đề phức tạp một cách tự động.",
+        "Mạng nơ-ron sâu cần một lượng lớn dữ liệu huấn luyện.",
+        "Xử lý ngôn ngữ tự nhiên cho phép máy tính hiểu văn bản.",
+        
+        # English sports documents
+        "Football players need to practice regularly to improve their skills.",
+        "Basketball requires both individual talent and team coordination.",
+        "Tennis matches can be very intense and physically demanding.",
+        
+        # Vietnamese sports documents
+        "Cầu thủ bóng đá cần luyện tập thường xuyên để cải thiện kỹ năng.",
+        "Bóng rổ đòi hỏi cả tài năng cá nhân và sự phối hợp của đội.",
+        "Các trận đấu tennis có thể rất căng thẳng và đòi hỏi thể lực."
+    ]
+    
+    # Cluster documents
+    result = cluster_documents_by_similarity(documents, n_clusters=4)
+    
+    print("Multilingual Document Clustering Results:")
+    print("=" * 60)
+    print(f"Silhouette Score: {result['silhouette_score']:.4f}")
+    print()
+    
+    for cluster_id, docs in result['clusters'].items():
+        print(f"Cluster {cluster_id}:")
+        for doc_idx, doc_text in docs:
+            language = "Vietnamese" if any(char in doc_text for char in "àáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđ") else "English"
+            print(f"  [{language}] {doc_text[:50]}...")
+        print()
+    
+    print("Note: Clustering will typically group documents by language first,")
+    print("then by topic within each language cluster.")
+
+# Run the multilingual clustering example
+multilingual_clustering_example()
 ```
 
 ### 2. Plagiarism Detection
@@ -991,7 +1200,7 @@ class ContentRecommendationSystem:
 - **Domain-specific tasks**: Develop custom similarity measures incorporating domain knowledge
 
 ```python
-def choose_similarity_method(text_length, domain, computational_budget):
+def choose_similarity_method(text_length, domain, computational_budget, language='english'):
     """Helper function to choose appropriate similarity method."""
     
     recommendations = []
@@ -1010,18 +1219,89 @@ def choose_similarity_method(text_length, domain, computational_budget):
     elif domain == 'creative':
         recommendations.append('semantic_similarity')
     
+    # Based on language considerations
+    if language == 'multilingual':
+        recommendations.append('cross_lingual_embeddings')
+        print("Multilingual similarity considerations:")
+        print("- Use cross-lingual embeddings (LASER, mBERT)")
+        print("- Consider translation-based approaches")
+        print("- Language-specific preprocessing may be needed")
+    elif language == 'vietnamese':
+        recommendations.append('vietnamese_specific')
+        print("Vietnamese-specific considerations:")
+        print("- Vietnamese tokenization is word-based, not character-based")
+        print("- Consider Vietnamese-specific embeddings")
+        print("- Handle diacritical marks properly")
+    
     # Based on computational budget
     if computational_budget == 'low':
         recommendations = [r for r in recommendations if r not in ['transformer_based', 'doc2vec']]
     
     return recommendations
+
+# Vietnamese/English similarity method selection examples
+def demonstrate_language_specific_selection():
+    """Demonstrate similarity method selection for different language scenarios."""
+    
+    print("=== Similarity Method Selection Examples ===")
+    print()
+    
+    # English monolingual case
+    print("1. English Monolingual Similarity:")
+    english_recs = choose_similarity_method('medium', 'technical', 'medium', 'english')
+    print(f"   Recommendations: {english_recs}")
+    print()
+    
+    # Vietnamese monolingual case  
+    print("2. Vietnamese Monolingual Similarity:")
+    vietnamese_recs = choose_similarity_method('medium', 'technical', 'medium', 'vietnamese')
+    print(f"   Recommendations: {vietnamese_recs}")
+    print()
+    
+    # Cross-lingual case
+    print("3. Vietnamese-English Cross-lingual Similarity:")
+    multilingual_recs = choose_similarity_method('medium', 'technical', 'high', 'multilingual')
+    print(f"   Recommendations: {multilingual_recs}")
+    print()
+    
+    print("=== Language-Specific Similarity Examples ===")
+    print()
+    
+    # Example similarity calculations
+    texts = {
+        'en1': "Machine learning is powerful technology",
+        'en2': "AI algorithms are very effective", 
+        'vi1': "Học máy là công nghệ mạnh mẽ",
+        'vi2': "Thuật toán AI rất hiệu quả"
+    }
+    
+    print("Monolingual similarities (higher expected):")
+    print(f"English: '{texts['en1']}' vs '{texts['en2']}'")
+    print(f"Vietnamese: '{texts['vi1']}' vs '{texts['vi2']}'")
+    print()
+    
+    print("Cross-lingual similarities (lower expected, but semantically related):")
+    print(f"English-Vietnamese: '{texts['en1']}' vs '{texts['vi1']}'")
+    print(f"English-Vietnamese: '{texts['en2']}' vs '{texts['vi2']}'")
+
+# Run the demonstration
+demonstrate_language_specific_selection()
 ```
 
 ### 2. Preprocessing Best Practices
 
 ```python
-def robust_text_preprocessing(text, level='standard'):
+def robust_text_preprocessing(text, level='standard', language='auto'):
     """Comprehensive text preprocessing with different levels of aggressiveness."""
+    
+    # Detect language if not specified
+    if language == 'auto':
+        # Simple language detection based on character sets
+        vietnamese_chars = set('àáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđ')
+        if any(char in text.lower() for char in vietnamese_chars):
+            language = 'vietnamese'
+        else:
+            language = 'english'
     
     # Basic cleaning
     text = text.lower()
@@ -1031,22 +1311,82 @@ def robust_text_preprocessing(text, level='standard'):
         # Remove punctuation
         text = re.sub(r'[^\w\s]', '', text)
         
-        # Remove stop words
-        stop_words = set(nltk.corpus.stopwords.words('english'))
+        # Language-specific stop word removal
+        if language == 'english':
+            stop_words = set(nltk.corpus.stopwords.words('english'))
+        elif language == 'vietnamese':
+            # Vietnamese stop words (basic set)
+            stop_words = set(['và', 'của', 'là', 'có', 'trong', 'một', 'với', 'được', 'các', 'để', 'cho', 'về', 'từ', 'sẽ', 'đã', 'bị', 'hay', 'như', 'khi', 'này', 'đó', 'nó', 'họ', 'tôi', 'bạn'])
+        else:
+            stop_words = set()
+            
         words = [word for word in text.split() if word not in stop_words]
         text = ' '.join(words)
     
     if level == 'aggressive':
-        # Lemmatization
-        lemmatizer = nltk.WordNetLemmatizer()
-        words = [lemmatizer.lemmatize(word) for word in text.split()]
+        # Language-specific lemmatization/stemming
+        if language == 'english':
+            lemmatizer = nltk.WordNetLemmatizer()
+            words = [lemmatizer.lemmatize(word) for word in text.split()]
+        elif language == 'vietnamese':
+            # Vietnamese doesn't have traditional lemmatization
+            # Focus on removing diacritics if needed for similarity
+            import unicodedata
+            words = []
+            for word in text.split():
+                # Option 1: Keep diacritics (recommended for semantic similarity)
+                words.append(word)
+                # Option 2: Remove diacritics (uncomment for lexical similarity)
+                # normalized = unicodedata.normalize('NFD', word)
+                # ascii_word = ''.join(c for c in normalized if unicodedata.category(c) != 'Mn')
+                # words.append(ascii_word)
+        else:
+            words = text.split()
+            
         text = ' '.join(words)
         
-        # Remove very short words
-        words = [word for word in text.split() if len(word) > 2]
+        # Remove very short words (adjust based on language)
+        min_length = 2 if language == 'vietnamese' else 3
+        words = [word for word in text.split() if len(word) > min_length]
         text = ' '.join(words)
     
     return text
+
+# Vietnamese/English preprocessing examples
+def demonstrate_multilingual_preprocessing():
+    """Demonstrate preprocessing for Vietnamese and English texts."""
+    
+    test_texts = [
+        ("English", "The quick brown fox jumps over the lazy dog."),
+        ("Vietnamese", "Con cáo nâu nhanh nhẹn nhảy qua con chó lười biếng."),
+        ("English Technical", "Machine learning algorithms use artificial intelligence."),
+        ("Vietnamese Technical", "Thuật toán học máy sử dụng trí tuệ nhân tạo.")
+    ]
+    
+    print("=== Multilingual Text Preprocessing Examples ===")
+    print()
+    
+    for label, text in test_texts:
+        print(f"{label} Text:")
+        print(f"Original: '{text}'")
+        
+        basic = robust_text_preprocessing(text, level='basic')
+        standard = robust_text_preprocessing(text, level='standard')
+        aggressive = robust_text_preprocessing(text, level='aggressive')
+        
+        print(f"Basic:      '{basic}'")
+        print(f"Standard:   '{standard}'")
+        print(f"Aggressive: '{aggressive}'")
+        print("-" * 50)
+    
+    print("Key differences:")
+    print("- Vietnamese retains diacritical marks for semantic accuracy")
+    print("- Different stop word lists for each language")
+    print("- Language-specific minimum word lengths")
+    print("- Vietnamese doesn't use traditional lemmatization")
+
+# Run the demonstration
+demonstrate_multilingual_preprocessing()
 ```
 
 ### 3. Performance Optimization
