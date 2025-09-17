@@ -1506,6 +1506,59 @@ def evaluate_similarity_method(similarity_function, test_pairs, human_scores):
 3. **SICK Dataset**: Sentences Involving Compositional Knowledge
 4. **Quora Question Pairs**: Duplicate question detection
 
+### Vietnamese/English Specific Resources
+
+#### Vietnamese NLP Libraries and Tools
+1. **VnCoreNLP**: Vietnamese natural language processing toolkit
+2. **pyvi**: Vietnamese word segmentation and POS tagging
+3. **underthesea**: Vietnamese NLP toolkit with sentiment analysis
+4. **Vietnamese-specific embeddings**: fastText Vietnamese models
+
+#### Cross-lingual and Multilingual Models
+1. **LASER (Language-Agnostic SEntence Representations)**: Multilingual sentence embeddings
+2. **mBERT**: Multilingual BERT for cross-lingual understanding
+3. **XLM-R**: Cross-lingual language model
+4. **Google's Universal Sentence Encoder (Multilingual)**: Supports Vietnamese
+
+#### Vietnamese/English Datasets
+1. **OpenSubtitles Vietnamese-English**: Parallel corpus for translation
+2. **Vietnamese Wikipedia**: Monolingual Vietnamese text corpus
+3. **VLSP Datasets**: Vietnamese Language and Speech Processing evaluation datasets
+4. **PhoMT**: Vietnamese-English machine translation dataset
+
+#### Code Examples for Vietnamese/English Similarity
+```python
+# Vietnamese/English similarity evaluation example
+def evaluate_vietnamese_english_similarity():
+    """Example evaluation with Vietnamese/English text pairs."""
+    
+    # Sample test pairs with human similarity ratings (0-1 scale)
+    test_pairs = [
+        (("My name is John", "Tên tôi là John"), 0.95),  # High similarity - translation
+        (("Hello world", "Xin chào thế giới"), 0.90),   # High similarity - translation
+        (("Machine learning", "Học máy"), 0.85),        # High similarity - translation
+        (("Hello", "Goodbye"), 0.20),                   # Low similarity - English
+        (("Xin chào", "Tạm biệt"), 0.25),              # Low similarity - Vietnamese
+        (("Programming", "Lập trình"), 0.90),           # High similarity - translation
+    ]
+    
+    print("Vietnamese/English Similarity Evaluation:")
+    print("=" * 50)
+    
+    for (text1, text2), human_score in test_pairs:
+        # Calculate various similarity measures
+        jaccard_sim = jaccard_similarity_basic(text1, text2)
+        
+        print(f"Text 1: '{text1}'")
+        print(f"Text 2: '{text2}'")
+        print(f"Human Score: {human_score:.2f}")
+        print(f"Jaccard Similarity: {jaccard_sim:.3f}")
+        print("-" * 30)
+
+# Run the evaluation
+evaluate_vietnamese_english_similarity()
+```
+
 ---
 
 *This document provides a comprehensive foundation for understanding and implementing similarity measures in NLP. The concepts and code examples can be adapted and extended based on specific use cases and requirements.*
