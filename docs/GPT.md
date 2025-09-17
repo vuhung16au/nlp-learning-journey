@@ -87,7 +87,12 @@ GPT uses **masked self-attention** to ensure that predictions for position $i$ c
 
 $$ \text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T + M}{\sqrt{d_k}}\right)V $$
 
-Where $M$ is a causal mask that sets future positions to negative infinity.
+Where:
+- $Q$ is the query matrix
+- $K$ is the key matrix  
+- $V$ is the value matrix
+- $M$ is a causal mask that sets future positions to negative infinity
+- $d_k$ is the dimension of the key vectors
 
 **2. Multi-Head Attention**
 
@@ -95,17 +100,35 @@ Multiple attention heads allow the model to attend to different types of relatio
 
 $$ \text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, ..., \text{head}_h)W^O $$
 
+Where:
+- $\text{head}_i$ represents the $i$-th attention head
+- $h$ is the number of attention heads
+- $W^O$ is the output projection matrix
+- $\text{Concat}$ concatenates the outputs from all heads
+
 **3. Feed-Forward Networks**
 
 Position-wise feed-forward networks process each position independently:
 
 $$ \text{FFN}(x) = \max(0, xW_1 + b_1)W_2 + b_2 $$
 
+Where:
+- $x$ is the input vector
+- $W_1$ and $W_2$ are weight matrices
+- $b_1$ and $b_2$ are bias vectors
+- $\max(0, \cdot)$ is the ReLU activation function
+
 **4. Residual Connections and Layer Normalization**
 
 Each component includes residual connections and layer normalization for stable training:
 
 $$ \text{LayerNorm}(x + \text{Sublayer}(x)) $$
+
+Where:
+- $x$ is the input to the sublayer
+- $\text{Sublayer}(x)$ represents either the attention or feed-forward sublayer
+- The addition $x + \text{Sublayer}(x)$ implements the residual connection
+- $\text{LayerNorm}$ normalizes the combined output
 
 ## How GPT Works
 
@@ -442,7 +465,7 @@ def advanced_gpt_prompting():
         generated_text = tokenizer.decode(output[0], skip_special_tokens=True)
         return generated_text
     
-    # Few-shot learning example
+    # Few-shot learning example - English sentiment analysis
     few_shot_prompt = """
     Task: Classify the sentiment of the following sentences as positive, negative, or neutral.
     
@@ -461,6 +484,27 @@ def advanced_gpt_prompting():
     result = generate_with_prompt(few_shot_prompt, max_length=200)
     print("Few-shot Classification Result:")
     print(result)
+    print("\n" + "="*50 + "\n")
+    
+    # Cross-lingual few-shot learning example - Vietnamese/English translation
+    translation_prompt = """
+    Task: Translate between Vietnamese and English.
+    
+    English: "My name is"
+    Vietnamese: "Tên tôi là"
+    
+    English: "Hello"
+    Vietnamese: "Xin chào"
+    
+    English: "Thank you"
+    Vietnamese: "Cảm ơn"
+    
+    English: "How are you?"
+    Vietnamese:"""
+    
+    translation_result = generate_with_prompt(translation_prompt, max_length=250)
+    print("Cross-lingual Translation Result:")
+    print(translation_result)
     print("\n" + "="*50 + "\n")
     
     # Creative writing example
@@ -513,6 +557,14 @@ def gpt_nlp_tasks():
                           temperature=0.3, do_sample=True)
         return result[0]['generated_text'][len(prompt):].strip()
     
+    def gpt_translation(text, source_lang="English", target_lang="Vietnamese"):
+        """Use GPT for Vietnamese/English translation"""
+        prompt = f"Translate this {source_lang} text to {target_lang}:\n\n{source_lang}: {text}\n{target_lang}:"
+        
+        result = generator(prompt, max_length=len(prompt.split()) + 10,
+                          temperature=0.3, do_sample=True)
+        return result[0]['generated_text'][len(prompt):].strip()
+    
     # Example usage
     sample_text = "The weather today is absolutely beautiful with clear skies and warm sunshine."
     
@@ -522,6 +574,11 @@ def gpt_nlp_tasks():
     print(gpt_summarization(sample_text))
     print("\nQuestion Answering:")
     print(gpt_question_answering(sample_text, "How is the weather?"))
+    
+    # Vietnamese/English translation examples
+    print("\nVietnamese/English Translation:")
+    print("English → Vietnamese:", gpt_translation("My name is", "English", "Vietnamese"))
+    print("Vietnamese → English:", gpt_translation("Tên tôi là", "Vietnamese", "English"))
 
 # Run the example (when you have internet connection)
 # gpt_nlp_tasks()
