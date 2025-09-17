@@ -46,36 +46,33 @@ RNNs process sequences one element at a time, maintaining a hidden state that ca
 The fundamental RNN operates on three key equations that define how information flows through the network:
 
 **Hidden State Update:**
-```
-h_t = tanh(W_hh * h_{t-1} + W_xh * x_t + b_h)
-```
+
+$$ h_t = \tanh(W_{hh} h_{t-1} + W_{xh} x_t + b_h) $$
 
 **Output Generation:**
-```
-y_t = W_hy * h_t + b_y
-```
+
+$$ y_t = W_{hy} h_t + b_y $$
 
 **Probability Distribution (for classification):**
-```
-p_t = softmax(y_t)
-```
+
+$$ p_t = \text{softmax}(y_t) $$
 
 Where:
-- **h_t**: Hidden state at time step t
-- **x_t**: Input at time step t  
-- **y_t**: Output at time step t
-- **W_hh**: Hidden-to-hidden weight matrix
-- **W_xh**: Input-to-hidden weight matrix
-- **W_hy**: Hidden-to-output weight matrix
-- **b_h, b_y**: Bias vectors
+- $h_t$: Hidden state at time step t
+- $x_t$: Input at time step t  
+- $y_t$: Output at time step t
+- $W_{hh}$: Hidden-to-hidden weight matrix
+- $W_{xh}$: Input-to-hidden weight matrix
+- $W_{hy}$: Hidden-to-output weight matrix
+- $b_h, b_y$: Bias vectors
 
 ### Mathematical Intuition
 
 **1. Information Flow**
-The hidden state h_t acts as the network's "memory," combining:
-- Previous memory (h_{t-1}) weighted by W_hh
-- Current input (x_t) weighted by W_xh
-- Bias term (b_h) for learning flexibility
+The hidden state $h_t$ acts as the network's "memory," combining:
+- Previous memory ($h_{t-1}$) weighted by $W_{hh}$
+- Current input ($x_t$) weighted by $W_{xh}$
+- Bias term ($b_h$) for learning flexibility
 
 **2. Nonlinearity**
 The tanh activation function:
@@ -84,7 +81,7 @@ The tanh activation function:
 - Enables gradient flow during backpropagation
 
 **3. Parameter Sharing**
-The same weight matrices (W_hh, W_xh, W_hy) are used at every time step:
+The same weight matrices ($W_{hh}$, $W_{xh}$, $W_{hy}$) are used at every time step:
 - Reduces the total number of parameters
 - Enables processing of variable-length sequences
 - Assumes temporal stationarity in patterns
@@ -592,19 +589,15 @@ $$ \frac{\partial L}{\partial W} = \sum_{t=1}^T \frac{\partial L_t}{\partial W_t
 
 For the hidden-to-hidden weights, this becomes:
 
-```
-∂L_t/∂W_hh = (∂L_t/∂h_t) * (∏_{k=1}^t ∂h_k/∂h_{k-1}) * (∂h_1/∂W_hh)
-```
+$$ \frac{\partial L_t}{\partial W_{hh}} = \frac{\partial L_t}{\partial h_t} \times \left(\prod_{k=1}^t \frac{\partial h_k}{\partial h_{k-1}}\right) \times \frac{\partial h_1}{\partial W_{hh}} $$
 
-The partial derivative ∂h_k/∂h_{k-1} involves the derivative of the activation function and the weight matrix:
+The partial derivative $\frac{\partial h_k}{\partial h_{k-1}}$ involves the derivative of the activation function and the weight matrix:
 
-```
-∂h_k/∂h_{k-1} = W_hh * diag(tanh'(h_{k-1}))
-```
+$$ \frac{\partial h_k}{\partial h_{k-1}} = W_{hh} \odot \text{diag}(\tanh'(h_{k-1})) $$
 
 **The Problem:**
-- When |W_hh * tanh'(h)| < 1, gradients vanish exponentially: ∏_{k=1}^t |W_hh * tanh'(h)| → 0
-- For long sequences (large T), this product becomes extremely small
+- When $|W_{hh} \odot \tanh'(h)| < 1$, gradients vanish exponentially: $\prod_{k=1}^t |W_{hh} \odot \tanh'(h)| \rightarrow 0$
+- For long sequences (large $T$), this product becomes extremely small
 - Early time steps receive negligible gradient updates
 - The network cannot learn long-range dependencies
 
@@ -685,7 +678,7 @@ RNNs must process sequences step by step, which creates several issues:
 
 The effective context window of an RNN can be approximated by analyzing how much information from time step t-k contributes to the current state h_t.
 
-For a simple RNN with weight matrix W with eigenvalue $\lambda_{\max}$:
+For a simple RNN with weight matrix $W$ with eigenvalue $\lambda_{\max}$:
 
 $$ \left|\frac{\partial h_t}{\partial h_{t-k}}\right| \approx |\lambda_{\max}|^k $$
 
@@ -713,7 +706,7 @@ graph LR
     end
 ```
 
-Where d is the hidden dimension. This creates:
+Where $d$ is the hidden dimension. This creates:
 - **Information loss** for long or complex sequences
 - **Inability to selectively focus** on relevant parts
 - **Poor performance** on tasks requiring precise attention to specific elements
@@ -726,15 +719,13 @@ Where d is the hidden dimension. This creates:
 
 The core innovation of transformers is self-attention, which computes attention weights for all position pairs simultaneously:
 
-```
-Attention(Q, K, V) = softmax(QK^T / √d_k)V
-```
+$$ \text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V $$
 
 Where:
-- **Q** (Query): What information we're looking for
-- **K** (Key): What information is available  
-- **V** (Value): The actual information content
-- **d_k**: Dimension of key vectors (for scaling)
+- $Q$ (Query): What information we're looking for
+- $K$ (Key): What information is available  
+- $V$ (Value): The actual information content
+- $d_k$: Dimension of key vectors (for scaling)
 
 **Key Advantages:**
 
@@ -760,11 +751,11 @@ Where:
 
 **Mathematical Formulation:**
 
-```
-MultiHead(Q, K, V) = Concat(head_1, ..., head_h)W^O
+$$ \text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, \ldots, \text{head}_h)W^O $$
 
-where head_i = Attention(QW_i^Q, KW_i^K, VW_i^V)
-```
+where:
+
+$$ \text{head}_i = \text{Attention}(QW_i^Q, KW_i^K, VW_i^V) $$
 
 **Benefits:**
 - **Multiple perspectives**: Each head learns different types of relationships
@@ -777,10 +768,10 @@ where head_i = Attention(QW_i^Q, KW_i^K, VW_i^V)
 Since attention is permutation-invariant, transformers add positional information:
 
 **Sinusoidal Encoding:**
-```
-PE(pos, 2i) = sin(pos / 10000^(2i/d_model))
-PE(pos, 2i+1) = cos(pos / 10000^(2i/d_model))
-```
+
+$$ PE(\text{pos}, 2i) = \sin\left(\frac{\text{pos}}{10000^{2i/d_{\text{model}}}}\right) $$
+
+$$ PE(\text{pos}, 2i+1) = \cos\left(\frac{\text{pos}}{10000^{2i/d_{\text{model}}}}\right) $$
 
 This allows the model to:
 - Understand sequence order
@@ -790,9 +781,8 @@ This allows the model to:
 ### 4. Layer Normalization and Residual Connections
 
 **Residual Connections:**
-```
-output = LayerNorm(x + Sublayer(x))
-```
+
+$$ \text{output} = \text{LayerNorm}(x + \text{Sublayer}(x)) $$
 
 **Benefits:**
 - **Gradient flow**: Enables training of very deep networks
