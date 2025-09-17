@@ -44,42 +44,36 @@ This balance helps identify words that are characteristic of specific documents 
 ### Term Frequency (TF)
 
 **Raw Count**:
-```
-TF(t,d) = count of term t in document d
-```
+
+$$ \text{TF}(t,d) = \text{count of term } t \text{ in document } d $$
 
 **Normalized Frequency** (most common):
-```
-TF(t,d) = (count of term t in document d) / (total number of terms in document d)
-```
+
+$$ \text{TF}(t,d) = \frac{\text{count of term } t \text{ in document } d}{\text{total number of terms in document } d} $$
 
 **Log Normalization**:
-```
-TF(t,d) = 1 + log(count of term t in document d)
-```
+
+$$ \text{TF}(t,d) = 1 + \log(\text{count of term } t \text{ in document } d) $$
 
 ### Inverse Document Frequency (IDF)
 
 **Standard IDF**:
-```
-IDF(t,D) = log(N / DF(t))
-```
+
+$$ \text{IDF}(t,D) = \log\left(\frac{N}{\text{DF}(t)}\right) $$
 
 **Smooth IDF** (preferred to avoid division by zero):
-```
-IDF(t,D) = log(N / (1 + DF(t))) + 1
-```
+
+$$ \text{IDF}(t,D) = \log\left(\frac{N}{1 + \text{DF}(t)}\right) + 1 $$
 
 Where:
-- `N` = Total number of documents in the corpus
-- `DF(t)` = Number of documents containing term t
+- $N$ = Total number of documents in the corpus
+- $\text{DF}(t)$ = Number of documents containing term $t$
 
 ### TF-IDF Calculation
 
 **Final Formula**:
-```
-TF-IDF(t,d,D) = TF(t,d) × IDF(t,D)
-```
+
+$$ \text{TF-IDF}(t,d,D) = \text{TF}(t,d) \times \text{IDF}(t,D) $$
 
 ### Step-by-Step Algorithm
 
@@ -99,10 +93,10 @@ Given corpus:
 - Document 3: "cats and dogs are pets"
 
 For term "cat" in Document 1:
-- TF("cat", D1) = 1/6 = 0.167
-- DF("cat") = 1 (appears in 1 document)
-- IDF("cat") = log(3/1) = 1.099
-- TF-IDF("cat", D1) = 0.167 × 1.099 = 0.183
+- $\text{TF}(\text{"cat"}, D_1) = \frac{1}{6} = 0.167$
+- $\text{DF}(\text{"cat"}) = 1$ (appears in 1 document)
+- $\text{IDF}(\text{"cat"}) = \log\left(\frac{3}{1}\right) = 1.099$
+- $\text{TF-IDF}(\text{"cat"}, D_1) = 0.167 \times 1.099 = 0.183$
 
 ## Use Cases
 
