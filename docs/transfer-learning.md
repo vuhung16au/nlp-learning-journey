@@ -370,6 +370,637 @@ for i, text in enumerate(generated_texts, 1):
     print(f"\n{i}. {text['generated_text']}")
 ```
 
+### Example 4: Transfer Learning with Keras
+
+Keras provides an intuitive and high-level API for implementing transfer learning in NLP tasks. This section demonstrates how to implement transfer learning using Keras with TensorFlow backend, including proper environment detection and TensorBoard logging as required by this repository.
+
+#### Environment Setup and Detection
+
+```python
+# Environment Detection and Setup (Required for all notebooks in this repository)
+import sys
+import subprocess
+import os
+import time
+
+# Detect the runtime environment
+IS_COLAB = "google.colab" in sys.modules
+IS_KAGGLE = "kaggle_secrets" in sys.modules
+IS_LOCAL = not (IS_COLAB or IS_KAGGLE)
+
+print(f"Environment detected:")
+print(f"  - Local: {IS_LOCAL}")
+print(f"  - Google Colab: {IS_COLAB}")
+print(f"  - Kaggle: {IS_KAGGLE}")
+
+# Platform-specific system setup
+if IS_COLAB:
+    print("\nSetting up Google Colab environment...")
+    !apt update -qq
+    !apt install -y -qq libpq-dev
+elif IS_KAGGLE:
+    print("\nSetting up Kaggle environment...")
+    # Kaggle usually has most packages pre-installed
+else:
+    print("\nSetting up local environment...")
+
+# TensorFlow logging setup (MANDATORY for all TensorFlow/Keras training)
+def setup_tensorflow_logging():
+    """Setup platform-specific TensorFlow logging directories."""
+    if IS_COLAB:
+        root_logdir = "/content/tensorflow_logs"
+    elif IS_KAGGLE:
+        root_logdir = "./tensorflow_logs"
+    else:
+        root_logdir = os.path.join(os.getcwd(), "tensorflow_logs")
+    
+    os.makedirs(root_logdir, exist_ok=True)
+    return root_logdir
+
+def get_run_logdir(experiment_name="run"):
+    """Generate unique run directory for TensorBoard logs."""
+    root_logdir = setup_tensorflow_logging()
+    run_id = time.strftime(f"{experiment_name}_%Y_%m_%d-%H_%M_%S")
+    return os.path.join(root_logdir, run_id)
+
+# Install required packages for this example
+required_packages = [
+    "tensorflow",
+    "transformers", 
+    "pandas",
+    "numpy",
+    "matplotlib",
+    "seaborn"
+]
+
+print("\nInstalling required packages...")
+for package in required_packages:
+    if IS_COLAB or IS_KAGGLE:
+        !pip install -q {package}
+    else:
+        subprocess.run([sys.executable, "-m", "pip", "install", "-q", package], 
+                      capture_output=True)
+    print(f"✓ {package}")
+```
+
+#### Feature Extraction Approach with Keras
+
+This approach uses a pre-trained model as a fixed feature extractor and trains only the classification layers:
+
+```python
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Dense, Dropout, GlobalAveragePooling1D
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.callbacks import TensorBoard, EarlyStopping, ReduceLROnPlateau
+import numpy as np
+import pandas as pd
+
+# Disable excessive TensorFlow logging
+import logging
+tf.get_logger().setLevel(logging.ERROR)
+
+class KerasFeatureExtractor:
+    """Feature extraction approach using pre-trained embeddings with Keras."""
+    
+    def __init__(self, embedding_dim=128, max_length=100, vocab_size=10000):
+        self.embedding_dim = embedding_dim
+        self.max_length = max_length
+        self.vocab_size = vocab_size
+        self.model = None
+        
+    def create_model(self, num_classes=2):
+        """Create a model using pre-trained embeddings (feature extraction)."""
+        
+        # Input layer
+        inputs = keras.Input(shape=(self.max_length,), name="text_input")
+        
+        # Pre-trained embedding layer (frozen for feature extraction)
+        embedding_layer = keras.layers.Embedding(
+            input_dim=self.vocab_size,
+            output_dim=self.embedding_dim,
+            input_length=self.max_length,
+            trainable=False,  # Freeze pre-trained embeddings
+            name="frozen_embeddings"
+        )(inputs)
+        
+        # Global average pooling to reduce dimensionality
+        pooled = GlobalAveragePooling1D()(embedding_layer)
+        
+        # Classification head (only these layers will be trained)
+        x = Dense(64, activation='relu', name="classification_dense1")(pooled)
+        x = Dropout(0.5, name="classification_dropout1")(x)
+        x = Dense(32, activation='relu', name="classification_dense2")(x)
+        x = Dropout(0.3, name="classification_dropout2")(x)
+        
+        # Output layer
+        outputs = Dense(num_classes, activation='softmax', name="output")(x)
+        
+        # Create model
+        model = Model(inputs=inputs, outputs=outputs, name="feature_extraction_model")
+        
+        return model
+    
+    def compile_model(self, model, learning_rate=0.001):
+        """Compile the model with appropriate settings."""
+        model.compile(
+            optimizer=Adam(learning_rate=learning_rate),
+            loss='sparse_categorical_crossentropy',
+            metrics=['accuracy', 'precision', 'recall']
+        )
+        return model
+
+# Example usage with Vietnamese/English sentiment analysis
+def keras_feature_extraction_example():
+    """Demonstrate feature extraction approach with Vietnamese/English examples."""
+    
+    print("=== Keras Feature Extraction Transfer Learning ===\n")
+    
+    # Create sample Vietnamese/English sentiment data
+    vietnamese_english_sentiment_data = [
+        # English examples
+        ("My name is John and I love programming", 1),
+        ("This is terrible quality", 0),
+        ("Hello, how are you today?", 1),
+        ("Thank you for your excellent service", 1),
+        ("This product is disappointing", 0),
+        
+        # Vietnamese examples  
+        ("Tên tôi là John và tôi yêu lập trình", 1),
+        ("Chất lượng này thật tệ", 0),
+        ("Xin chào, bạn khỏe không?", 1),
+        ("Cảm ơn bạn vì dịch vụ tuyệt vời", 1),
+        ("Sản phẩm này thật đáng thất vọng", 0),
+        
+        # Mixed examples
+        ("Machine learning và học máy are fascinating", 1),
+        ("Natural language processing rất thú vị", 1),
+        ("Artificial intelligence và trí tuệ nhân tạo", 1)
+    ]
+    
+    # Prepare data
+    texts = [item[0] for item in vietnamese_english_sentiment_data]
+    labels = np.array([item[1] for item in vietnamese_english_sentiment_data])
+    
+    print(f"Training data: {len(texts)} examples")
+    print("Sample Vietnamese/English examples:")
+    for i, (text, label) in enumerate(vietnamese_english_sentiment_data[:5]):
+        sentiment = "Positive" if label == 1 else "Negative"
+        print(f"  {i+1}. '{text}' → {sentiment}")
+    
+    # Simple tokenization (in practice, use proper tokenizers)
+    # Create a simple vocabulary and tokenize
+    vocab = {}
+    vocab_size = 1000
+    max_length = 50
+    
+    # Build vocabulary from all words
+    all_words = []
+    for text in texts:
+        words = text.lower().split()
+        all_words.extend(words)
+    
+    unique_words = list(set(all_words))[:vocab_size-2]  # Reserve 0 for padding, 1 for unknown
+    vocab = {word: i+2 for i, word in enumerate(unique_words)}
+    vocab['<PAD>'] = 0
+    vocab['<UNK>'] = 1
+    
+    def text_to_sequence(text, vocab, max_length):
+        """Convert text to sequence of integers."""
+        words = text.lower().split()
+        sequence = [vocab.get(word, vocab['<UNK>']) for word in words]
+        # Pad or truncate to max_length
+        if len(sequence) < max_length:
+            sequence.extend([vocab['<PAD>']] * (max_length - len(sequence)))
+        else:
+            sequence = sequence[:max_length]
+        return sequence
+    
+    # Convert texts to sequences
+    X = np.array([text_to_sequence(text, vocab, max_length) for text in texts])
+    y = labels
+    
+    # Create and compile model
+    extractor = KerasFeatureExtractor(
+        embedding_dim=64, 
+        max_length=max_length, 
+        vocab_size=len(vocab)
+    )
+    
+    model = extractor.create_model(num_classes=2)
+    model = extractor.compile_model(model, learning_rate=0.001)
+    
+    # Display model architecture
+    print(f"\nModel Architecture:")
+    model.summary()
+    
+    # Setup TensorBoard logging (MANDATORY)
+    run_logdir = get_run_logdir("keras_feature_extraction")
+    
+    # Define callbacks including TensorBoard
+    callbacks = [
+        # TensorBoard callback - REQUIRED for all training
+        TensorBoard(
+            log_dir=run_logdir,
+            histogram_freq=1,           # Log weight histograms every epoch
+            write_graph=True,           # Log model graph
+            write_images=True,          # Log model weights as images
+            update_freq='epoch',        # Log metrics every epoch
+            profile_batch=0             # Disable profiling for performance
+        ),
+        # Standard callbacks for training optimization
+        EarlyStopping(patience=5, restore_best_weights=True),
+        ReduceLROnPlateau(factor=0.5, patience=3, min_lr=1e-6)
+    ]
+    
+    print(f"\n📊 TensorBoard logs will be saved to: {run_logdir}")
+    
+    # Train the model (using small epoch count for demo)
+    print("\nStarting training...")
+    history = model.fit(
+        X, y,
+        epochs=10,
+        batch_size=4,
+        validation_split=0.2,
+        callbacks=callbacks,
+        verbose=1
+    )
+    
+    # Test predictions with Vietnamese/English examples
+    test_examples = [
+        "My name is John",  # English: "Tên tôi là John"
+        "Tên tôi là John",  # Vietnamese: "My name is John"
+        "Hello world",      # English: "Xin chào thế giới"
+        "Xin chào",         # Vietnamese: "Hello"
+        "Thank you"         # English: "Cảm ơn"
+    ]
+    
+    print("\n=== Predictions on Vietnamese/English Examples ===")
+    for text in test_examples:
+        sequence = np.array([text_to_sequence(text, vocab, max_length)])
+        prediction = model.predict(sequence, verbose=0)
+        confidence = np.max(prediction)
+        predicted_class = np.argmax(prediction)
+        sentiment = "Positive" if predicted_class == 1 else "Negative"
+        
+        print(f"Text: '{text}'")
+        print(f"  Prediction: {sentiment} (confidence: {confidence:.3f})")
+        print()
+    
+    # Display TensorBoard viewing instructions
+    print("=" * 60)
+    print("📊 TENSORBOARD VISUALIZATION")
+    print("=" * 60)
+    print(f"Log directory: {run_logdir}")
+    print("\n🚀 To view TensorBoard:")
+    
+    if IS_COLAB:
+        print("   In Google Colab:")
+        print("   1. Run: %load_ext tensorboard")
+        print(f"   2. Run: %tensorboard --logdir {run_logdir}")
+        print("   3. TensorBoard will appear inline in the notebook")
+    elif IS_KAGGLE:
+        print("   In Kaggle:")
+        print(f"   1. Download logs from: {run_logdir}")
+        print("   2. Run locally: tensorboard --logdir ./tensorflow_logs")
+        print("   3. Open http://localhost:6006 in browser")
+    else:
+        print("   Locally:")
+        print(f"   1. Run: tensorboard --logdir {run_logdir}")
+        print("   2. Open http://localhost:6006 in browser")
+    
+    print("\n📈 Available visualizations:")
+    print("   • Scalars: Loss, accuracy, learning rate over time")
+    print("   • Histograms: Weight and bias distributions")
+    print("   • Graphs: Model architecture visualization")
+    print("   • Images: Weight matrices as heatmaps")
+    print("=" * 60)
+    
+    return model, history
+
+# Run the example
+# model, history = keras_feature_extraction_example()
+```
+
+#### Fine-tuning Approach with Keras
+
+This approach fine-tunes pre-trained transformer models using Keras and Hugging Face Transformers:
+
+```python
+from transformers import TFAutoModel, AutoTokenizer
+import tensorflow as tf
+from tensorflow import keras
+
+class KerasTransformerFineTuning:
+    """Fine-tuning approach using pre-trained transformers with Keras."""
+    
+    def __init__(self, model_name="distilbert-base-uncased", max_length=128):
+        self.model_name = model_name
+        self.max_length = max_length
+        self.tokenizer = None
+        self.model = None
+        
+    def create_model(self, num_classes=2, learning_rate=2e-5):
+        """Create a fine-tuning model using pre-trained transformers."""
+        
+        # Load tokenizer and pre-trained model
+        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+        
+        # Create input layers
+        input_ids = keras.Input(shape=(self.max_length,), name="input_ids", dtype="int32")
+        attention_mask = keras.Input(shape=(self.max_length,), name="attention_mask", dtype="int32")
+        
+        # Load pre-trained transformer model
+        transformer_model = TFAutoModel.from_pretrained(self.model_name)
+        
+        # Get transformer outputs
+        transformer_outputs = transformer_model(input_ids, attention_mask=attention_mask)
+        
+        # Use the pooled output for classification
+        pooled_output = transformer_outputs.last_hidden_state[:, 0, :]  # [CLS] token
+        
+        # Add classification head
+        x = keras.layers.Dense(128, activation='relu', name="classification_dense")(pooled_output)
+        x = keras.layers.Dropout(0.3, name="classification_dropout")(x)
+        outputs = keras.layers.Dense(num_classes, activation='softmax', name="predictions")(x)
+        
+        # Create model
+        model = keras.Model(inputs=[input_ids, attention_mask], outputs=outputs)
+        
+        # Compile model
+        model.compile(
+            optimizer=keras.optimizers.Adam(learning_rate=learning_rate),
+            loss='sparse_categorical_crossentropy',
+            metrics=['accuracy']
+        )
+        
+        return model
+    
+    def tokenize_texts(self, texts):
+        """Tokenize texts using the model's tokenizer."""
+        return self.tokenizer(
+            texts,
+            max_length=self.max_length,
+            truncation=True,
+            padding='max_length',
+            return_tensors='tf'
+        )
+
+def keras_fine_tuning_example():
+    """Demonstrate fine-tuning approach with Vietnamese/English translation sentiment."""
+    
+    print("=== Keras Fine-tuning Transfer Learning ===\n")
+    
+    # Vietnamese/English translation pairs with sentiment
+    translation_sentiment_data = [
+        # Positive sentiment examples
+        ("My name is", "Tên tôi là", 1),
+        ("Hello", "Xin chào", 1), 
+        ("Thank you", "Cảm ơn", 1),
+        ("I love programming", "Tôi yêu lập trình", 1),
+        ("Good morning", "Chào buổi sáng", 1),
+        ("Nice to meet you", "Rất vui được gặp bạn", 1),
+        
+        # Neutral/Negative sentiment examples  
+        ("This is okay", "Điều này bình thường", 0),
+        ("Not good", "Không tốt", 0),
+        ("This is terrible", "Điều này thật tệ", 0),
+        ("Poor quality", "Chất lượng kém", 0),
+    ]
+    
+    # Prepare data - we'll classify the sentiment of English texts
+    english_texts = [item[0] for item in translation_sentiment_data]
+    vietnamese_texts = [item[1] for item in translation_sentiment_data]  # For reference
+    labels = np.array([item[2] for item in translation_sentiment_data])
+    
+    print(f"Training data: {len(english_texts)} English-Vietnamese pairs")
+    print("\nSample translation pairs with sentiment:")
+    for i, (en, vi, sentiment) in enumerate(translation_sentiment_data[:5]):
+        sentiment_label = "Positive" if sentiment == 1 else "Negative/Neutral"
+        print(f"  {i+1}. English: '{en}' → Vietnamese: '{vi}' (Sentiment: {sentiment_label})")
+    
+    # Create fine-tuning model
+    fine_tuner = KerasTransformerFineTuning(
+        model_name="distilbert-base-uncased",
+        max_length=64
+    )
+    
+    print(f"\nCreating fine-tuning model with {fine_tuner.model_name}...")
+    
+    # Note: This requires internet connection to download the model
+    try:
+        model = fine_tuner.create_model(num_classes=2, learning_rate=2e-5)
+        
+        # Tokenize the texts
+        tokenized_inputs = fine_tuner.tokenize_texts(english_texts)
+        
+        # Prepare training data
+        X = {
+            'input_ids': tokenized_inputs['input_ids'],
+            'attention_mask': tokenized_inputs['attention_mask']
+        }
+        y = labels
+        
+        print("\nModel created successfully!")
+        print("Model summary:")
+        model.summary(expand_nested=True)
+        
+        # Setup TensorBoard logging (MANDATORY)
+        run_logdir = get_run_logdir("keras_fine_tuning")
+        
+        # Define callbacks including TensorBoard
+        callbacks = [
+            # TensorBoard callback - REQUIRED for all training
+            TensorBoard(
+                log_dir=run_logdir,
+                histogram_freq=1,           # Log weight histograms every epoch
+                write_graph=True,           # Log model graph
+                write_images=True,          # Log model weights as images
+                update_freq='epoch',        # Log metrics every epoch
+                profile_batch=0             # Disable profiling for performance
+            ),
+            # Standard callbacks for training optimization
+            EarlyStopping(patience=3, restore_best_weights=True),
+            ReduceLROnPlateau(factor=0.5, patience=2, min_lr=1e-6)
+        ]
+        
+        print(f"\n📊 TensorBoard logs will be saved to: {run_logdir}")
+        
+        # Train the model (small epochs for demo)
+        print("\nStarting fine-tuning...")
+        history = model.fit(
+            X, y,
+            epochs=5,
+            batch_size=2,
+            validation_split=0.2,
+            callbacks=callbacks,
+            verbose=1
+        )
+        
+        # Test with new Vietnamese/English examples
+        test_examples = [
+            "How are you?",           # Should map to Vietnamese: "Bạn khỏe không?"
+            "I am a student",         # Should map to Vietnamese: "Tôi là sinh viên" 
+            "Where are you from?",    # Should map to Vietnamese: "Bạn đến từ đâu?"
+            "This is not good",       # Should be negative sentiment
+            "Excellent work"          # Should be positive sentiment
+        ]
+        
+        print("\n=== Predictions on New Examples ===")
+        for text in test_examples:
+            # Tokenize single text
+            inputs = fine_tuner.tokenize_texts([text])
+            prediction = model.predict({
+                'input_ids': inputs['input_ids'],
+                'attention_mask': inputs['attention_mask']
+            }, verbose=0)
+            
+            confidence = np.max(prediction)
+            predicted_class = np.argmax(prediction)
+            sentiment = "Positive" if predicted_class == 1 else "Negative/Neutral"
+            
+            print(f"Text: '{text}'")
+            print(f"  Predicted sentiment: {sentiment} (confidence: {confidence:.3f})")
+            print()
+        
+        # Display TensorBoard viewing instructions
+        print("=" * 60)
+        print("📊 TENSORBOARD VISUALIZATION")
+        print("=" * 60)
+        print(f"Log directory: {run_logdir}")
+        print("\n🚀 To view TensorBoard:")
+        
+        if IS_COLAB:
+            print("   In Google Colab:")
+            print("   1. Run: %load_ext tensorboard")
+            print(f"   2. Run: %tensorboard --logdir {run_logdir}")
+            print("   3. TensorBoard will appear inline in the notebook")
+        elif IS_KAGGLE:
+            print("   In Kaggle:")
+            print(f"   1. Download logs from: {run_logdir}")
+            print("   2. Run locally: tensorboard --logdir ./tensorflow_logs")
+            print("   3. Open http://localhost:6006 in browser")
+        else:
+            print("   Locally:")
+            print(f"   1. Run: tensorboard --logdir {run_logdir}")
+            print("   2. Open http://localhost:6006 in browser")
+        
+        print("\n📈 Available visualizations:")
+        print("   • Scalars: Loss, accuracy, learning rate over time")
+        print("   • Histograms: Weight and bias distributions")  
+        print("   • Graphs: Model architecture visualization")
+        print("   • Images: Weight matrices as heatmaps")
+        print("=" * 60)
+        
+        return model, history
+        
+    except Exception as e:
+        print(f"⚠️  Model creation failed (likely due to network connection): {e}")
+        print("\n💡 Alternative: Use local pre-trained models or run in online environment")
+        return None, None
+
+# Run the example (uncomment when you have internet connection)
+# model, history = keras_fine_tuning_example()
+```
+
+#### Mathematical Foundation of Keras Transfer Learning
+
+The transfer learning process in Keras can be formalized mathematically. For a pre-trained model with parameters $\theta_{pretrained}$, the fine-tuning objective is:
+
+$$\theta_{fine-tuned} = \arg\min_{\theta} \mathcal{L}_{task}(D_{task}, \theta_{pretrained} + \Delta\theta) + \lambda R(\Delta\theta)$$
+
+Where:
+- $\mathcal{L}_{task}$ is the task-specific loss function
+- $D_{task}$ is the task-specific dataset  
+- $\Delta\theta$ represents the parameter updates during fine-tuning
+- $R(\Delta\theta)$ is a regularization term to prevent overfitting
+- $\lambda$ controls the regularization strength
+
+**Feature Extraction**: When $\Delta\theta$ is applied only to the classification head:
+$$\theta_{head} = \arg\min_{\theta_{head}} \mathcal{L}_{task}(f_{frozen}(X), \theta_{head})$$
+
+**Fine-tuning**: When $\Delta\theta$ is applied to all or selected layers:
+$$\theta_{all} = \arg\min_{\theta} \mathcal{L}_{task}(f_{\theta_{pretrained} + \Delta\theta}(X), y)$$
+
+#### Transfer Learning Architectural Patterns in Keras
+
+```mermaid
+graph TD
+    A[Input Text:<br/>'My name is John'<br/>'Tên tôi là John'] --> B[Tokenization]
+    B --> C[Pre-trained Embeddings<br/>Feature Extraction]
+    C --> D[Frozen Weights<br/>θ_pretrained]
+    D --> E[Global Average Pooling]
+    E --> F[Dense Layer 1<br/>Trainable: θ_new]
+    F --> G[Dropout]
+    G --> H[Dense Layer 2<br/>Trainable: θ_new]
+    H --> I[Output<br/>Sentiment: Positive/Negative]
+
+    style A fill:#FFFFFF,stroke:#582C67,color:#333,stroke-width:2px
+    style C fill:#582C67,stroke:#C60C30,color:#FFFFFF,stroke-width:2px
+    style D fill:#C60C30,stroke:#582C67,color:#FFFFFF,stroke-width:2px
+    style F fill:#582C67,stroke:#C60C30,color:#FFFFFF,stroke-width:2px
+    style H fill:#582C67,stroke:#C60C30,color:#FFFFFF,stroke-width:2px
+    style I fill:#FFFFFF,stroke:#582C67,color:#333,stroke-width:2px
+
+    subgraph "Transfer Learning Strategy"
+        sub1[Frozen Layers: Keep pre-trained knowledge]
+        sub2[Trainable Layers: Learn task-specific patterns]
+        sub3[Vietnamese/English: Cross-lingual understanding]
+    end
+```
+
+#### Best Practices for Keras Transfer Learning
+
+**1. Layer Freezing Strategy**
+```python
+# Freeze pre-trained layers
+for layer in base_model.layers:
+    layer.trainable = False
+
+# Unfreeze top layers for fine-tuning
+for layer in base_model.layers[-4:]:
+    layer.trainable = True
+```
+
+**2. Learning Rate Scheduling**
+```python
+# Lower learning rates for pre-trained layers
+initial_learning_rate = 2e-5
+lr_schedule = keras.optimizers.schedules.ExponentialDecay(
+    initial_learning_rate,
+    decay_steps=100,
+    decay_rate=0.96,
+    staircase=True
+)
+```
+
+**3. Data Augmentation for Text**
+```python
+# For Vietnamese/English text augmentation
+def augment_translation_pairs(en_text, vi_text):
+    """Simple augmentation for translation pairs."""
+    augmented_pairs = []
+    
+    # Original pair
+    augmented_pairs.append((en_text, vi_text))
+    
+    # Add punctuation variations
+    augmented_pairs.append((en_text + ".", vi_text + "."))
+    augmented_pairs.append((en_text + "!", vi_text + "!"))
+    
+    return augmented_pairs
+
+# Example usage
+original_en = "My name is"
+original_vi = "Tên tôi là"
+augmented = augment_translation_pairs(original_en, original_vi)
+for en, vi in augmented:
+    print(f"English: '{en}' → Vietnamese: '{vi}'")
+```
+
+This comprehensive Keras implementation demonstrates both feature extraction and fine-tuning approaches for transfer learning, with special emphasis on Vietnamese/English examples as prioritized by this repository. The examples include proper environment detection, mandatory TensorBoard logging, and follow all repository standards for documentation and code quality.
+
 ## Benefits and Advantages
 
 ### 1. Computational Efficiency
