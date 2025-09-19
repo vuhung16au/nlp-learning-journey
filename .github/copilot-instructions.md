@@ -46,7 +46,7 @@ The repository uses these essential libraries:
 - **NLTK**: Natural language processing toolkit
 - **spaCy**: Industrial-strength NLP library  
 - **Transformers**: Hugging Face transformer models (requires internet for model downloads)
-- **PyTorch & TensorFlow**: Deep learning frameworks
+- **PyTorch**: Primary deep learning framework (preferred over TensorFlow)
 - **scikit-learn**: Machine learning algorithms
 - **Pandas & NumPy**: Data manipulation and analysis
 - **Matplotlib, Seaborn, Plotly**: Data visualization
@@ -68,9 +68,9 @@ The repository uses these essential libraries:
 
 **IMPORTANT**: Some notebooks (like tokenization.ipynb) require internet access to download pre-trained models from Hugging Face. In offline environments, these cells will fail with network errors - this is expected behavior.
 
-### Keras/TensorFlow Logging Policy
+### PyTorch Training and Logging Policy
 
-**ALL notebooks in `examples/*.ipynb` that use TensorFlow/Keras for model training MUST implement TensorBoard logging for training visualization and monitoring.**
+**ALL notebooks in `examples/*.ipynb` that use PyTorch for model training SHOULD implement proper logging for training visualization and monitoring.**
 
 #### Platform-Specific Log Directory Configuration:
 
@@ -78,76 +78,126 @@ The repository uses these essential libraries:
 import os
 import time
 
-# Platform-specific TensorFlow log directory setup
+# Platform-specific PyTorch log directory setup
 if IS_COLAB:
-    # Google Colab: Save logs to /content/tensorflow_logs
-    root_logdir = "/content/tensorflow_logs"
+    # Google Colab: Save logs to /content/pytorch_logs
+    root_logdir = "/content/pytorch_logs"
 elif IS_KAGGLE:
-    # Kaggle: Save logs to ./tensorflow_logs/
-    root_logdir = "./tensorflow_logs"
+    # Kaggle: Save logs to ./pytorch_logs/
+    root_logdir = "./pytorch_logs"
 else:
-    # Local: Save logs to <project-folder>/tensorflow_logs/
-    root_logdir = os.path.join(os.getcwd(), "tensorflow_logs")
+    # Local: Save logs to <project-folder>/pytorch_logs/
+    root_logdir = os.path.join(os.getcwd(), "pytorch_logs")
 
 # Create log directory if it doesn't exist
 os.makedirs(root_logdir, exist_ok=True)
 
 def get_run_logdir(experiment_name="run"):
-    """Generate unique run directory for TensorBoard logs."""
+    """Generate unique run directory for PyTorch logs."""
     run_id = time.strftime(f"{experiment_name}_%Y_%m_%d-%H_%M_%S")
     return os.path.join(root_logdir, run_id)
 ```
 
-#### Required TensorBoard Callback Integration:
+#### PyTorch Training with TensorBoard (Optional):
 
-**ALWAYS include TensorBoard callback when training Keras models:**
+**PyTorch training can optionally use TensorBoard for visualization:**
 
 ```python
-from tensorflow import keras
+import torch
+import torch.nn as nn
+from torch.utils.tensorboard import SummaryWriter
 
 # Generate unique log directory for this training run
-run_logdir = get_run_logdir("model_training")  # e.g., './tensorflow_logs/model_training_2024_01_15-14_30_22'
+run_logdir = get_run_logdir("pytorch_training")
 
-# Define callbacks including TensorBoard
-callbacks = [
-    # TensorBoard callback - REQUIRED for all training
-    keras.callbacks.TensorBoard(
-        log_dir=run_logdir,
-        histogram_freq=1,           # Log weight histograms every epoch
-        write_graph=True,           # Log model graph
-        write_images=True,          # Log model weights as images
-        update_freq='epoch',        # Log metrics every epoch
-        profile_batch=0             # Disable profiling for performance
-    ),
-    # Standard callbacks for training optimization
-    keras.callbacks.EarlyStopping(patience=5, restore_best_weights=True),
-    keras.callbacks.ReduceLROnPlateau(factor=0.5, patience=3, min_lr=1e-6)
-]
+# Create TensorBoard writer (optional)
+writer = SummaryWriter(log_dir=run_logdir)
 
-# Train model with TensorBoard logging
-history = model.fit(
-    X_train, y_train,
-    epochs=30,
-    validation_data=(X_valid, y_valid),
-    callbacks=callbacks,
-    verbose=1
-)
+# Training loop example
+def train_model(model, train_loader, val_loader, epochs=30):
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+    criterion = nn.CrossEntropyLoss()
+    
+    for epoch in range(epochs):
+        # Training phase
+        model.train()
+        train_loss = 0.0
+        for batch_idx, (data, target) in enumerate(train_loader):
+            optimizer.zero_grad()
+            output = model(data)
+            loss = criterion(output, target)
+            loss.backward()
+            optimizer.step()
+            train_loss += loss.item()
+        
+        # Validation phase
+        model.eval()
+        val_loss = 0.0
+        correct = 0
+        with torch.no_grad():
+            for data, target in val_loader:
+                output = model(data)
+                val_loss += criterion(output, target).item()
+                pred = output.argmax(dim=1, keepdim=True)
+                correct += pred.eq(target.view_as(pred)).sum().item()
+        
+        # Log metrics
+        avg_train_loss = train_loss / len(train_loader)
+        avg_val_loss = val_loss / len(val_loader)
+        accuracy = correct / len(val_loader.dataset)
+        
+        # Optional: Log to TensorBoard
+        if writer:
+            writer.add_scalar('Loss/Train', avg_train_loss, epoch)
+            writer.add_scalar('Loss/Validation', avg_val_loss, epoch)
+            writer.add_scalar('Accuracy/Validation', accuracy, epoch)
+        
+        print(f'Epoch {epoch}: Train Loss: {avg_train_loss:.4f}, Val Loss: {avg_val_loss:.4f}, Accuracy: {accuracy:.4f}')
+    
+    if writer:
+        writer.close()
+    
+    return model
 
-print(f"\n📊 TensorBoard logs saved to: {run_logdir}")
-print(f"💡 To view logs, run: tensorboard --logdir={run_logdir}")
+print(f"\n📊 Training logs saved to: {run_logdir}")
+print(f"💡 To view logs (if using TensorBoard), run: tensorboard --logdir={run_logdir}")
 ```
 
-#### TensorBoard Viewing Instructions:
+#### Training Visualization Instructions:
 
 **Include these instructions in notebooks after training:**
 
 ```python
-# Display TensorBoard viewing instructions
+# Display training visualization instructions
 print("=" * 60)
-print("📊 TENSORBOARD VISUALIZATION")
+print("📊 PYTORCH TRAINING VISUALIZATION")
 print("=" * 60)
 print(f"Log directory: {run_logdir}")
-print("\n🚀 To view TensorBoard:")
+print("\n🚀 To view training metrics:")
+
+if IS_COLAB:
+    print("   In Google Colab:")
+    print("   1. Optional: %load_ext tensorboard")
+    print(f"   2. Optional: %tensorboard --logdir {run_logdir}")
+    print("   3. Or use matplotlib for inline plotting")
+elif IS_KAGGLE:
+    print("   In Kaggle:")
+    print(f"   1. Download logs from: {root_logdir}")
+    print("   2. Use matplotlib for inline plotting")
+    print("   3. Optional: tensorboard --logdir ./pytorch_logs")
+else:
+    print("   Locally:")
+    print(f"   1. Optional: tensorboard --logdir {run_logdir}")
+    print("   2. Use matplotlib for plotting training curves")
+    print("   3. Open http://localhost:6006 in browser (if using TensorBoard)")
+
+print("\n📈 Available visualizations:")
+print("   • Training and validation loss curves")
+print("   • Accuracy metrics over time")
+print("   • Learning rate schedules")
+print("   • Model parameters (if using TensorBoard)")
+print("=" * 60)
+```
 
 if IS_COLAB:
     print("   In Google Colab:")
@@ -177,15 +227,16 @@ print("=" * 60)
 1. **Unique Run Names**: Use descriptive experiment names for easy identification
 2. **Log Preservation**: Never delete logs during notebook execution
 3. **Directory Structure**: Organize logs by model type and experiment date
-4. **Memory Management**: Use `profile_batch=0` to prevent memory issues
+4. **Memory Efficiency**: Monitor memory usage during training
 5. **Documentation**: Always print log directory location after training
 
 #### Implementation Requirements:
 
-- **MANDATORY**: All TensorFlow/Keras training must include TensorBoard callback
+- **PREFERRED**: Use PyTorch as the primary deep learning framework
 - **PLATFORM SUPPORT**: Log directory setup must work across Colab, Kaggle, and local environments
 - **USER GUIDANCE**: Include viewing instructions in every training notebook
-- **CONSISTENCY**: Use standardized callback configuration across all notebooks
+- **CONSISTENCY**: Use standardized training patterns across all notebooks
+- **TENSORFLOW USAGE**: Only use TensorFlow if PyTorch cannot implement the required functionality
 
 ### Runtime Environment Detection
 All Jupyter notebooks in this repository include automatic runtime environment detection to ensure compatibility across Google Colab, Kaggle, and local environments. Use this pattern in new notebooks:
@@ -219,21 +270,21 @@ else:
     print("\nSetting up local environment...")
 
 # TensorFlow logging setup (for notebooks that use TensorFlow/Keras)
-def setup_tensorflow_logging():
-    """Setup platform-specific TensorFlow logging directories."""
+def setup_pytorch_logging():
+    """Setup platform-specific PyTorch logging directories."""
     if IS_COLAB:
-        root_logdir = "/content/tensorflow_logs"
+        root_logdir = "/content/pytorch_logs"
     elif IS_KAGGLE:
-        root_logdir = "./tensorflow_logs"
+        root_logdir = "./pytorch_logs"
     else:
-        root_logdir = os.path.join(os.getcwd(), "tensorflow_logs")
+        root_logdir = os.path.join(os.getcwd(), "pytorch_logs")
     
     os.makedirs(root_logdir, exist_ok=True)
     return root_logdir
 
 def get_run_logdir(experiment_name="run"):
-    """Generate unique run directory for TensorBoard logs."""
-    root_logdir = setup_tensorflow_logging()
+    """Generate unique run directory for training logs."""
+    root_logdir = setup_pytorch_logging()
     run_id = time.strftime(f"{experiment_name}_%Y_%m_%d-%H_%M_%S")
     return os.path.join(root_logdir, run_id)
 
@@ -269,7 +320,7 @@ for package in required_packages:
 1. **Basic Library Import Test** (should complete in 2-3 seconds):
    ```bash
    python -c "
-   import nltk, spacy, transformers, torch, tensorflow as tf, sklearn
+   import nltk, spacy, transformers, torch, sklearn
    import pandas as pd, numpy as np, matplotlib.pyplot as plt
    print('Core imports successful!')
    "
@@ -369,7 +420,7 @@ for package in required_packages:
    "
    ```
 
-8. **TensorFlow Logging Setup Test** (should complete in 2-3 seconds):
+8. **PyTorch Logging Setup Test** (should complete in 2-3 seconds):
    ```bash
    python -c "
    import sys
@@ -377,25 +428,25 @@ for package in required_packages:
    import time
    import tempfile
    
-   # Test TensorFlow logging setup pattern
+   # Test PyTorch logging setup pattern
    IS_COLAB = 'google.colab' in sys.modules
    IS_KAGGLE = 'kaggle_secrets' in sys.modules
    IS_LOCAL = not (IS_COLAB or IS_KAGGLE)
    
-   def setup_tensorflow_logging():
+   def setup_pytorch_logging():
        if IS_COLAB:
-           root_logdir = '/content/tensorflow_logs'
+           root_logdir = '/content/pytorch_logs'
        elif IS_KAGGLE:
-           root_logdir = './tensorflow_logs'
+           root_logdir = './pytorch_logs'
        else:
            # Use temp directory for testing to avoid creating logs in repo
-           root_logdir = os.path.join(tempfile.gettempdir(), 'tensorflow_logs')
+           root_logdir = os.path.join(tempfile.gettempdir(), 'pytorch_logs')
        
        os.makedirs(root_logdir, exist_ok=True)
        return root_logdir
    
    def get_run_logdir(experiment_name='test_run'):
-       root_logdir = setup_tensorflow_logging()
+       root_logdir = setup_pytorch_logging()
        run_id = time.strftime(f'{experiment_name}_%Y_%m_%d-%H_%M_%S')
        return os.path.join(root_logdir, run_id)
    
@@ -403,7 +454,7 @@ for package in required_packages:
    test_logdir = get_run_logdir('validation_test')
    os.makedirs(test_logdir, exist_ok=True)
    
-   print('TensorFlow logging setup:')
+   print('PyTorch logging setup:')
    print(f'  - Environment: {\"Colab\" if IS_COLAB else \"Kaggle\" if IS_KAGGLE else \"Local\"}')
    print(f'  - Log directory created: {os.path.exists(test_logdir)}')
    print(f'  - Directory path: {test_logdir}')
@@ -412,7 +463,7 @@ for package in required_packages:
    import shutil
    shutil.rmtree(os.path.dirname(test_logdir), ignore_errors=True)
    
-   print('✓ TensorFlow logging setup working correctly!')
+   print('✓ PyTorch logging setup working correctly!')
    "
    ```
 
@@ -554,12 +605,12 @@ python -m spacy download en_core_web_sm            # 1-2 minutes
 python -c "import nltk; nltk.download('punkt'); nltk.download('punkt_tab'); nltk.download('stopwords'); nltk.download('wordnet'); nltk.download('omw-1.4')"  # 1-2 minutes
 
 # Quick validation (run all to verify environment)
-python -c "import nltk, spacy, transformers, torch, tensorflow, sklearn, pandas, numpy, matplotlib; print('All imports OK')"
+python -c "import nltk, spacy, transformers, torch, sklearn, pandas, numpy, matplotlib; print('All imports OK')"
 python -c "import spacy; nlp = spacy.load('en_core_web_sm'); print('spaCy OK')"
 python -c "from nltk.tokenize import word_tokenize; print('NLTK OK')"
 python -c "from sklearn.feature_extraction.text import TfidfVectorizer; print('sklearn OK')"
 python -c "import sys; IS_COLAB = 'google.colab' in sys.modules; IS_KAGGLE = 'kaggle_secrets' in sys.modules; IS_LOCAL = not (IS_COLAB or IS_KAGGLE); assert sum([IS_LOCAL, IS_COLAB, IS_KAGGLE]) == 1; print('Environment detection OK')"
-python -c "import sys, os, time, tempfile; IS_COLAB = 'google.colab' in sys.modules; IS_KAGGLE = 'kaggle_secrets' in sys.modules; IS_LOCAL = not (IS_COLAB or IS_KAGGLE); root_logdir = '/content/tensorflow_logs' if IS_COLAB else './tensorflow_logs' if IS_KAGGLE else os.path.join(tempfile.gettempdir(), 'tensorflow_logs'); os.makedirs(root_logdir, exist_ok=True); print('TensorFlow logging setup OK')"
+python -c "import sys, os, time, tempfile; IS_COLAB = 'google.colab' in sys.modules; IS_KAGGLE = 'kaggle_secrets' in sys.modules; IS_LOCAL = not (IS_COLAB or IS_KAGGLE); root_logdir = '/content/pytorch_logs' if IS_COLAB else './pytorch_logs' if IS_KAGGLE else os.path.join(tempfile.gettempdir(), 'pytorch_logs'); os.makedirs(root_logdir, exist_ok=True); print('PyTorch logging setup OK')"
 
 # Test Vietnamese/English processing
 python -c "
