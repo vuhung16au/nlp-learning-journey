@@ -7,7 +7,7 @@ This document provides a comprehensive explanation of Long Short-Term Memory (LS
 1. [What is LSTM (Long Short-Term Memory)](#what-is-lstm-long-short-term-memory)
 2. [Usage in RNN](#usage-in-rnn)
 3. [Usage in NLP](#usage-in-nlp)
-4. [Sample Code in Python using Keras](#sample-code-in-python-using-keras)
+4. [Sample Code in Python using PyTorch](#sample-code-in-python-using-pytorch)
 5. [Advanced LSTM Architectures](#advanced-lstm-architectures)
 6. [Performance Considerations](#performance-considerations)
 7. [Comparison with Other Architectures](#comparison-with-other-architectures)
@@ -195,524 +195,427 @@ Generating concise summaries:
 4. **Bidirectional Processing**: Can process text in both directions
 5. **Hierarchical Learning**: Can learn different levels of abstraction
 
-## Sample Code in Python using Keras
+## Sample Code in Python using PyTorch
 
-Here are practical examples of LSTM implementation using Keras/TensorFlow:
+Here are practical examples of LSTM implementation using PyTorch:
 
 ### LSTM with Return States (as requested)
 
 ```python
-from tensorflow.keras.layers import Input, LSTM, Dense, Embedding
-from tensorflow.keras.models import Model
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
 
-def create_lstm_with_states(vocab_size, embedding_dim=128, max_length=50):
+class LSTMWithStates(nn.Module):
     """
-    Example showing keras.layers.LSTM(512, return_state=True) usage.
+    Example showing PyTorch LSTM with return_state functionality.
     This is useful for encoder-decoder architectures.
     """
-    # Input layer
-    inputs = Input(shape=(max_length,))
-    
-    # Embedding layer
-    embedded = Embedding(vocab_size, embedding_dim)(inputs)
-    
-    # LSTM with return_state=True as specifically requested
-    lstm_out, hidden_state, cell_state = LSTM(512, return_state=True)(embedded)
-    
-    # Use the hidden state for classification
-    outputs = Dense(1, activation='sigmoid')(hidden_state)
-    
-    model = Model(inputs=inputs, outputs=outputs)
-    model.compile(
-        optimizer='adam',
-        loss='binary_crossentropy',
-        metrics=['accuracy']
-    )
-    
-    return model
+    def __init__(self, vocab_size, embedding_dim=128, hidden_dim=512, max_length=50):
+        super(LSTMWithStates, self).__init__()
+        self.embedding_dim = embedding_dim
+        self.hidden_dim = hidden_dim
+        self.max_length = max_length
+        
+        # Embedding layer
+        self.embedding = nn.Embedding(vocab_size, embedding_dim)
+        
+        # LSTM layer with 512 units (equivalent to Keras example)
+        self.lstm = nn.LSTM(embedding_dim, hidden_dim, batch_first=True)
+        
+        # Output layer for classification
+        self.fc = nn.Linear(hidden_dim, 1)
+        self.sigmoid = nn.Sigmoid()
+        
+    def forward(self, x):
+        # Embedding
+        embedded = self.embedding(x)
+        
+        # LSTM forward pass - returns output and (hidden, cell) states
+        lstm_out, (hidden_state, cell_state) = self.lstm(embedded)
+        
+        # Use the final hidden state for classification
+        # hidden_state shape: (num_layers, batch, hidden_dim)
+        final_hidden = hidden_state[-1]  # Get last layer's hidden state
+        
+        # Classification layer
+        output = self.sigmoid(self.fc(final_hidden))
+        
+        return output, hidden_state, cell_state
 
 # Example usage
 vocab_size = 10000
-state_model = create_lstm_with_states(vocab_size)
-print("LSTM with return_state=True created successfully!")
+model = LSTMWithStates(vocab_size)
+print("LSTM with return states created successfully!")
+
+# Example forward pass
+batch_size = 32
+seq_length = 50
+dummy_input = torch.randint(0, vocab_size, (batch_size, seq_length))
+output, hidden_state, cell_state = model(dummy_input)
+print(f"Output shape: {output.shape}")
+print(f"Hidden state shape: {hidden_state.shape}")
+print(f"Cell state shape: {cell_state.shape}")
 ```
 
 ### Basic LSTM for Text Classification
 
 ```python
-import tensorflow as tf
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM, Dense, Embedding, Dropout
-from tensorflow.keras.preprocessing.text import Tokenizer
-from tensorflow.keras.preprocessing.sequence import pad_sequences
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torch.utils.data import DataLoader, TensorDataset
 import numpy as np
 
-def create_simple_lstm_classifier(vocab_size, embedding_dim=128, max_length=100):
+class SimpleLSTMClassifier(nn.Module):
     """
-    Create a simple LSTM model for text classification.
-    
-    Args:
-        vocab_size: Size of vocabulary
-        embedding_dim: Dimension of word embeddings
-        max_length: Maximum sequence length
-    
-    Returns:
-        Compiled Keras model
+    Basic LSTM for text classification with Vietnamese/English examples.
     """
-    model = Sequential([
-        # Embedding layer to convert words to dense vectors
-        Embedding(vocab_size, embedding_dim),
+    def __init__(self, vocab_size, embedding_dim=128, hidden_dim=64, num_classes=2, max_length=100):
+        super(SimpleLSTMClassifier, self).__init__()
+        self.embedding_dim = embedding_dim
+        self.hidden_dim = hidden_dim
+        self.max_length = max_length
         
-        # LSTM layer with 512 units (example of keras.layers.LSTM usage)
-        LSTM(512, dropout=0.3, recurrent_dropout=0.3),
+        # Layers
+        self.embedding = nn.Embedding(vocab_size, embedding_dim)
+        self.lstm = nn.LSTM(embedding_dim, hidden_dim, batch_first=True)
+        self.dropout = nn.Dropout(0.3)
+        self.fc = nn.Linear(hidden_dim, num_classes)
         
-        # Dropout for regularization
-        Dropout(0.5),
+    def forward(self, x):
+        # Embedding
+        embedded = self.embedding(x)
         
-        # Dense layer for classification
-        Dense(64, activation='relu'),
-        Dropout(0.3),
+        # LSTM
+        lstm_out, (hidden, cell) = self.lstm(embedded)
         
-        # Output layer (binary classification)
-        Dense(1, activation='sigmoid')
-    ])
-    
-    model.compile(
-        optimizer='adam',
-        loss='binary_crossentropy',
-        metrics=['accuracy']
-    )
-    
-    return model
+        # Use the last time step output
+        last_output = lstm_out[:, -1, :]
+        
+        # Dropout and classification
+        dropped = self.dropout(last_output)
+        output = self.fc(dropped)
+        
+        return output
 
-# Example usage
+def train_lstm_classifier(model, train_loader, val_loader, epochs=10):
+    """
+    Training function for LSTM classifier.
+    """
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.Adam(model.parameters(), lr=0.001)
+    
+    model.train()
+    
+    for epoch in range(epochs):
+        total_loss = 0
+        for batch_idx, (data, target) in enumerate(train_loader):
+            optimizer.zero_grad()
+            output = model(data)
+            loss = criterion(output, target)
+            loss.backward()
+            optimizer.step()
+            total_loss += loss.item()
+        
+        # Validation
+        model.eval()
+        val_loss = 0
+        correct = 0
+        with torch.no_grad():
+            for data, target in val_loader:
+                output = model(data)
+                val_loss += criterion(output, target).item()
+                pred = output.argmax(dim=1, keepdim=True)
+                correct += pred.eq(target.view_as(pred)).sum().item()
+        
+        val_accuracy = correct / len(val_loader.dataset)
+        print(f'Epoch {epoch}: Train Loss: {total_loss/len(train_loader):.4f}, '
+              f'Val Loss: {val_loss/len(val_loader):.4f}, Val Acc: {val_accuracy:.4f}')
+        
+        model.train()
+
+# Example usage with Vietnamese/English sentiment data
 vocab_size = 10000
-model = create_simple_lstm_classifier(vocab_size)
-print(model.summary())
-```
+model = SimpleLSTMClassifier(vocab_size)
 
+# Example data (Vietnamese/English sentiment examples)
+# English: "I love this!" → Positive (1)
+# Vietnamese: "Tôi yêu điều này!" → Positive (1)
+# English: "This is terrible." → Negative (0)
+# Vietnamese: "Điều này thật tệ." → Negative (0)
+
+# Dummy data for demonstration
+train_data = torch.randint(0, vocab_size, (1000, 50))
+train_labels = torch.randint(0, 2, (1000,))
+val_data = torch.randint(0, vocab_size, (200, 50))
+val_labels = torch.randint(0, 2, (200,))
+
+train_dataset = TensorDataset(train_data, train_labels)
+val_dataset = TensorDataset(val_data, val_labels)
+train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+val_loader = DataLoader(val_dataset, batch_size=32)
+
+print("Training LSTM classifier...")
+train_lstm_classifier(model, train_loader, val_loader, epochs=5)
 ### Advanced LSTM for Sequence-to-Sequence Tasks
 
 ```python
-from tensorflow.keras.layers import Input, LSTM, Dense, Embedding
-from tensorflow.keras.models import Model
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
 
-def create_seq2seq_lstm(src_vocab_size, tgt_vocab_size, embedding_dim=256, 
-                       hidden_dim=512, max_length=50):
+class Seq2SeqLSTM(nn.Module):
     """
-    Create an LSTM encoder-decoder model for sequence-to-sequence tasks.
-    
-    Args:
-        src_vocab_size: Source vocabulary size
-        tgt_vocab_size: Target vocabulary size
-        embedding_dim: Embedding dimension
-        hidden_dim: LSTM hidden dimension
-        max_length: Maximum sequence length
-    
-    Returns:
-        Tuple of (training_model, encoder_model, decoder_model)
+    LSTM encoder-decoder model for sequence-to-sequence tasks.
+    Perfect for Vietnamese/English translation tasks.
     """
-    
-    # Encoder
-    encoder_inputs = Input(shape=(max_length,))
-    encoder_embedding = Embedding(src_vocab_size, embedding_dim)(encoder_inputs)
-    
-    # LSTM with return_state=True to get final states
-    encoder_lstm = LSTM(hidden_dim, return_state=True)
-    encoder_outputs, state_h, state_c = encoder_lstm(encoder_embedding)
-    encoder_states = [state_h, state_c]
-    
-    # Decoder
-    decoder_inputs = Input(shape=(max_length,))
-    decoder_embedding = Embedding(tgt_vocab_size, embedding_dim)
-    decoder_embedding_layer = decoder_embedding(decoder_inputs)
-    
-    # LSTM for decoder with return_sequences=True and return_state=True
-    decoder_lstm = LSTM(hidden_dim, return_sequences=True, return_state=True)
-    decoder_outputs, _, _ = decoder_lstm(decoder_embedding_layer, 
-                                        initial_state=encoder_states)
-    
-    # Dense layer for output vocabulary
-    decoder_dense = Dense(tgt_vocab_size, activation='softmax')
-    decoder_outputs = decoder_dense(decoder_outputs)
-    
-    # Training model
-    training_model = Model([encoder_inputs, decoder_inputs], decoder_outputs)
-    training_model.compile(
-        optimizer='adam',
-        loss='categorical_crossentropy',
-        metrics=['accuracy']
-    )
-    
-    # Inference models
-    encoder_model = Model(encoder_inputs, encoder_states)
-    
-    decoder_state_input_h = Input(shape=(hidden_dim,))
-    decoder_state_input_c = Input(shape=(hidden_dim,))
-    decoder_states_inputs = [decoder_state_input_h, decoder_state_input_c]
-    
-    decoder_embedding_inf = decoder_embedding(decoder_inputs)
-    decoder_outputs_inf, state_h_inf, state_c_inf = decoder_lstm(
-        decoder_embedding_inf, initial_state=decoder_states_inputs)
-    decoder_states_inf = [state_h_inf, state_c_inf]
-    decoder_outputs_inf = decoder_dense(decoder_outputs_inf)
-    
-    decoder_model = Model([decoder_inputs] + decoder_states_inputs,
-                         [decoder_outputs_inf] + decoder_states_inf)
-    
-    return training_model, encoder_model, decoder_model
+    def __init__(self, src_vocab_size, tgt_vocab_size, embedding_dim=256, 
+                 hidden_dim=512, max_length=50):
+        super(Seq2SeqLSTM, self).__init__()
+        self.src_vocab_size = src_vocab_size
+        self.tgt_vocab_size = tgt_vocab_size
+        self.embedding_dim = embedding_dim
+        self.hidden_dim = hidden_dim
+        self.max_length = max_length
+        
+        # Encoder components
+        self.encoder_embedding = nn.Embedding(src_vocab_size, embedding_dim)
+        self.encoder_lstm = nn.LSTM(embedding_dim, hidden_dim, batch_first=True)
+        
+        # Decoder components
+        self.decoder_embedding = nn.Embedding(tgt_vocab_size, embedding_dim)
+        self.decoder_lstm = nn.LSTM(embedding_dim, hidden_dim, batch_first=True)
+        self.decoder_output = nn.Linear(hidden_dim, tgt_vocab_size)
+        
+    def encode(self, src_seq):
+        """Encode source sequence."""
+        embedded = self.encoder_embedding(src_seq)
+        outputs, (hidden, cell) = self.encoder_lstm(embedded)
+        return hidden, cell
+        
+    def decode(self, tgt_seq, encoder_hidden, encoder_cell):
+        """Decode target sequence."""
+        embedded = self.decoder_embedding(tgt_seq)
+        outputs, (hidden, cell) = self.decoder_lstm(embedded, (encoder_hidden, encoder_cell))
+        outputs = self.decoder_output(outputs)
+        return outputs
+        
+    def forward(self, src_seq, tgt_seq):
+        """Forward pass for training."""
+        # Encode
+        encoder_hidden, encoder_cell = self.encode(src_seq)
+        
+        # Decode
+        decoder_outputs = self.decode(tgt_seq, encoder_hidden, encoder_cell)
+        
+        return decoder_outputs
 
-# Example usage
-src_vocab, tgt_vocab = 5000, 5000
-train_model, enc_model, dec_model = create_seq2seq_lstm(src_vocab, tgt_vocab)
-print("Encoder-Decoder LSTM created successfully!")
+# Example usage for Vietnamese/English translation
+src_vocab_size = 10000  # English vocabulary
+tgt_vocab_size = 8000   # Vietnamese vocabulary
+
+seq2seq_model = Seq2SeqLSTM(src_vocab_size, tgt_vocab_size)
+
+# Example translation pairs:
+# English: "My name is John" → Vietnamese: "Tên tôi là John"
+# English: "Hello" → Vietnamese: "Xin chào"
+# English: "Thank you" → Vietnamese: "Cảm ơn"
+
+# Dummy data for demonstration
+batch_size = 16
+src_seq = torch.randint(0, src_vocab_size, (batch_size, 20))  # English
+tgt_seq = torch.randint(0, tgt_vocab_size, (batch_size, 20))  # Vietnamese
+
+# Forward pass
+outputs = seq2seq_model(src_seq, tgt_seq)
+print(f"Seq2seq output shape: {outputs.shape}")
+print("Vietnamese/English translation model created successfully!")
 ```
 
-### Bidirectional LSTM for NER
+## Advanced LSTM Architectures
+
+### Bidirectional LSTM for Named Entity Recognition
 
 ```python
-from tensorflow.keras.layers import Bidirectional, TimeDistributed
+import torch
+import torch.nn as nn
 
-def create_bilstm_ner_model(vocab_size, tag_size, embedding_dim=100, 
-                           hidden_dim=128, max_length=50):
+class BiLSTMNER(nn.Module):
     """
-    Create a Bidirectional LSTM model for Named Entity Recognition.
-    
-    Args:
-        vocab_size: Vocabulary size
-        tag_size: Number of NER tags
-        embedding_dim: Embedding dimension
-        hidden_dim: LSTM hidden dimension
-        max_length: Maximum sequence length
-    
-    Returns:
-        Compiled Keras model for NER
+    Bidirectional LSTM model for Named Entity Recognition.
+    Perfect for Vietnamese/English NER tasks.
     """
-    model = Sequential([
-        # Embedding layer
-        Embedding(vocab_size, embedding_dim, input_length=max_length, 
-                 mask_zero=True),
+    def __init__(self, vocab_size, tag_size, embedding_dim=100, 
+                 hidden_dim=128, max_length=50):
+        super(BiLSTMNER, self).__init__()
+        self.embedding_dim = embedding_dim
+        self.hidden_dim = hidden_dim
+        self.tag_size = tag_size
         
-        # Bidirectional LSTM layers
-        Bidirectional(LSTM(hidden_dim, return_sequences=True, dropout=0.3)),
-        Bidirectional(LSTM(hidden_dim // 2, return_sequences=True, dropout=0.3)),
+        # Layers
+        self.embedding = nn.Embedding(vocab_size, embedding_dim)
+        self.bilstm = nn.LSTM(embedding_dim, hidden_dim, bidirectional=True, batch_first=True)
+        self.dropout = nn.Dropout(0.3)
         
-        # Dropout for regularization
-        Dropout(0.4),
+        # Output layer - bidirectional doubles hidden_dim
+        self.tag_classifier = nn.Linear(hidden_dim * 2, tag_size)
         
-        # TimeDistributed Dense layer for sequence labeling
-        TimeDistributed(Dense(64, activation='relu')),
-        Dropout(0.3),
+    def forward(self, x):
+        # Embedding
+        embedded = self.embedding(x)
         
-        # Output layer for tag prediction
-        TimeDistributed(Dense(tag_size, activation='softmax'))
-    ])
-    
-    model.compile(
-        optimizer='adam',
-        loss='categorical_crossentropy',
-        metrics=['accuracy']
-    )
-    
-    return model
+        # Bidirectional LSTM
+        lstm_out, _ = self.bilstm(embedded)
+        
+        # Dropout
+        dropped = self.dropout(lstm_out)
+        
+        # Token-level classification
+        tag_scores = self.tag_classifier(dropped)
+        
+        return tag_scores
 
-# Example usage for NER
-vocab_size = 15000
-tag_size = 10  # Number of NER tags (B-PER, I-PER, B-LOC, etc.)
-ner_model = create_bilstm_ner_model(vocab_size, tag_size)
-print(ner_model.summary())
+# Example usage for Vietnamese/English NER
+vocab_size = 10000
+tag_size = 9  # IOB2 format: B-PER, I-PER, B-ORG, I-ORG, B-LOC, I-LOC, B-MISC, I-MISC, O
+ner_model = BiLSTMNER(vocab_size, tag_size)
+
+# Example NER tasks:
+# English: "John lives in Vietnam" → [B-PER, O, O, B-LOC]
+# Vietnamese: "John sống ở Việt Nam" → [B-PER, O, O, B-LOC, I-LOC]
+
+print("Bidirectional LSTM NER model created successfully!")
 ```
 
 ### LSTM with Attention Mechanism
 
 ```python
-from tensorflow.keras.layers import Attention, Concatenate
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
 
-def create_lstm_with_attention(vocab_size, max_length=100, embedding_dim=128, 
-                              hidden_dim=256):
-    """
-    Create an LSTM model with attention mechanism.
-    
-    Args:
-        vocab_size: Vocabulary size
-        max_length: Maximum sequence length
-        embedding_dim: Embedding dimension
-        hidden_dim: LSTM hidden dimension
-    
-    Returns:
-        Compiled Keras model with attention
-    """
-    # Input
-    inputs = Input(shape=(max_length,))
-    
-    # Embedding
-    embedding = Embedding(vocab_size, embedding_dim)(inputs)
-    
-    # Bidirectional LSTM with return_sequences=True for attention
-    lstm_out = Bidirectional(LSTM(hidden_dim, return_sequences=True, 
-                                 dropout=0.3))(embedding)
-    
-    # Attention mechanism
-    attention = Attention()([lstm_out, lstm_out])
-    
-    # Concatenate LSTM output with attention
-    concat = Concatenate()([lstm_out, attention])
-    
-    # Global max pooling to get fixed-size representation
-    pooling = tf.keras.layers.GlobalMaxPooling1D()(concat)
-    
-    # Dense layers
-    dense1 = Dense(128, activation='relu')(pooling)
-    dropout1 = Dropout(0.5)(dense1)
-    dense2 = Dense(64, activation='relu')(dropout1)
-    dropout2 = Dropout(0.3)(dense2)
-    
-    # Output layer
-    outputs = Dense(1, activation='sigmoid')(dropout2)
-    
-    model = Model(inputs=inputs, outputs=outputs)
-    model.compile(
-        optimizer='adam',
-        loss='binary_crossentropy',
-        metrics=['accuracy']
-    )
-    
-    return model
+class AttentionMechanism(nn.Module):
+    """Simple attention mechanism for LSTM."""
+    def __init__(self, hidden_dim):
+        super(AttentionMechanism, self).__init__()
+        self.attention = nn.Linear(hidden_dim, 1)
+        
+    def forward(self, lstm_outputs):
+        # lstm_outputs shape: (batch, seq_len, hidden_dim)
+        attention_weights = F.softmax(self.attention(lstm_outputs), dim=1)
+        
+        # Weighted sum
+        attended_output = torch.sum(attention_weights * lstm_outputs, dim=1)
+        
+        return attended_output, attention_weights
+
+class LSTMWithAttention(nn.Module):
+    """LSTM model with attention mechanism."""
+    def __init__(self, vocab_size, embedding_dim=256, hidden_dim=512, num_classes=2):
+        super(LSTMWithAttention, self).__init__()
+        
+        # Layers
+        self.embedding = nn.Embedding(vocab_size, embedding_dim)
+        self.bilstm = nn.LSTM(embedding_dim, hidden_dim, bidirectional=True, batch_first=True)
+        self.attention = AttentionMechanism(hidden_dim * 2)  # Bidirectional
+        self.dropout = nn.Dropout(0.3)
+        self.fc1 = nn.Linear(hidden_dim * 2, 256)
+        self.fc2 = nn.Linear(256, 128)
+        self.output = nn.Linear(128, num_classes)
+        
+    def forward(self, x):
+        # Embedding
+        embedded = self.embedding(x)
+        
+        # Bidirectional LSTM
+        lstm_out, _ = self.bilstm(embedded)
+        
+        # Attention
+        attended_out, attention_weights = self.attention(lstm_out)
+        
+        # Classification layers
+        x = F.relu(self.fc1(attended_out))
+        x = self.dropout(x)
+        x = F.relu(self.fc2(x))
+        x = self.dropout(x)
+        output = self.output(x)
+        
+        return output, attention_weights
 
 # Example usage
-attention_model = create_lstm_with_attention(vocab_size=10000)
-print("LSTM with Attention model created!")
+vocab_size = 15000
+attention_model = LSTMWithAttention(vocab_size)
+print("LSTM with Attention model created successfully!")
 ```
-
-### Text Generation with LSTM
-
-```python
-def create_text_generation_lstm(vocab_size, sequence_length=40, embedding_dim=256, 
-                               hidden_dim=512):
-    """
-    Create an LSTM model for text generation.
-    
-    Args:
-        vocab_size: Vocabulary size
-        sequence_length: Length of input sequences
-        embedding_dim: Embedding dimension
-        hidden_dim: LSTM hidden dimension
-    
-    Returns:
-        Compiled model for text generation
-    """
-    model = Sequential([
-        # Embedding layer
-        Embedding(vocab_size, embedding_dim, input_length=sequence_length),
-        
-        # Multiple LSTM layers
-        LSTM(hidden_dim, return_sequences=True, dropout=0.3),
-        LSTM(hidden_dim, return_sequences=True, dropout=0.3),
-        LSTM(hidden_dim, dropout=0.3),
-        
-        # Dense layers
-        Dense(hidden_dim, activation='relu'),
-        Dropout(0.5),
-        Dense(vocab_size, activation='softmax')
-    ])
-    
-    model.compile(
-        optimizer='adam',
-        loss='categorical_crossentropy',
-        metrics=['accuracy']
-    )
-    
-    return model
-
-def generate_text(model, tokenizer, seed_text, num_words=50, max_sequence_len=40):
-    """
-    Generate text using trained LSTM model.
-    
-    Args:
-        model: Trained LSTM model
-        tokenizer: Fitted tokenizer
-        seed_text: Starting text
-        num_words: Number of words to generate
-        max_sequence_len: Maximum sequence length
-    
-    Returns:
-        Generated text string
-    """
-    for _ in range(num_words):
-        # Convert text to sequence
-        token_list = tokenizer.texts_to_sequences([seed_text])[0]
-        token_list = pad_sequences([token_list], maxlen=max_sequence_len-1, 
-                                  padding='pre')
-        
-        # Predict next word
-        predicted_probs = model.predict(token_list, verbose=0)
-        predicted_id = np.argmax(predicted_probs, axis=-1)[0]
-        
-        # Convert back to word
-        output_word = ""
-        for word, index in tokenizer.word_index.items():
-            if index == predicted_id:
-                output_word = word
-                break
-        
-        seed_text += " " + output_word
-    
-    return seed_text
-
-# Example usage
-text_gen_model = create_text_generation_lstm(vocab_size=5000)
-print("Text generation LSTM model created!")
-```
-
-## Advanced LSTM Architectures
-
-### Stacked LSTMs
-
-Multiple LSTM layers can be stacked for increased model capacity:
-
-```python
-def create_stacked_lstm(vocab_size, num_layers=3, hidden_dim=256):
-    """Create a stacked LSTM architecture."""
-    model = Sequential()
-    model.add(Embedding(vocab_size, 128))
-    
-    # Add multiple LSTM layers
-    for i in range(num_layers):
-        return_sequences = i < num_layers - 1  # All but last layer return sequences
-        model.add(LSTM(hidden_dim, return_sequences=return_sequences, 
-                      dropout=0.3, recurrent_dropout=0.3))
-    
-    model.add(Dense(1, activation='sigmoid'))
-    return model
-```
-
-### LSTM Variants
-
-1. **Peephole Connections**: Allow gates to look at cell state
-2. **Coupled Gates**: Tie forget and input gates together
-3. **GRU**: Simplified version with reset and update gates
-4. **ConvLSTM**: Combines CNN and LSTM for spatial-temporal data
 
 ## Performance Considerations
 
-### Training Efficiency
-
-```python
-# Use mixed precision for faster training
-from tensorflow.keras.mixed_precision import experimental as mixed_precision
-
-policy = mixed_precision.Policy('mixed_float16')
-mixed_precision.set_policy(policy)
-
-# Use gradient clipping to prevent exploding gradients
-from tensorflow.keras.optimizers import Adam
-
-optimizer = Adam(learning_rate=0.001, clipnorm=1.0)
-```
-
 ### Memory Optimization
+- **Gradient Clipping**: Prevents exploding gradients
+- **Batch Size**: Balance between memory and convergence
+- **Sequence Length**: Truncate very long sequences
 
-```python
-# Use stateful LSTMs for very long sequences
-def create_stateful_lstm(vocab_size, batch_size, hidden_dim=256):
-    """Create stateful LSTM for long sequences."""
-    model = Sequential([
-        Embedding(vocab_size, 128, batch_input_shape=(batch_size, None)),
-        LSTM(hidden_dim, stateful=True, return_sequences=True),
-        Dense(vocab_size, activation='softmax')
-    ])
-    return model
-```
+### Training Efficiency
+- **Learning Rate Scheduling**: Adaptive learning rates
+- **Early Stopping**: Prevent overfitting
+- **Mixed Precision**: Faster training with reduced memory
+
+### Vietnamese/English Specific Considerations
+- **Character-level vs Word-level**: Vietnamese benefits from subword tokenization
+- **Cross-lingual Embeddings**: Leverage multilingual models
+- **Language-specific Preprocessing**: Handle Vietnamese diacritics properly
 
 ## Comparison with Other Architectures
 
-| Architecture | Training Speed | Inference Speed | Long Dependencies | Parallelization |
-|-------------|---------------|-----------------|------------------|-----------------|
-| **LSTM** | Slow | Slow | Good | Poor |
-| **GRU** | Moderate | Moderate | Good | Poor |
-| **Transformer** | Fast | Fast | Excellent | Excellent |
-| **CNN** | Fast | Very Fast | Poor | Excellent |
+### LSTM vs Transformer
+- **LSTM**: Better for sequential processing, memory efficient
+- **Transformer**: Better for parallel processing, captures long-range dependencies
 
-### When to Use LSTMs
+### When to Use LSTM
+- Sequential data with temporal dependencies
+- Memory-constrained environments
+- Real-time processing requirements
 
-**Choose LSTMs when:**
-- Working with sequential data where order matters
-- Need to model long-term dependencies (but not extremely long)
-- Have limited computational resources compared to Transformers
-- Working with streaming data or real-time applications
-- Fine-grained control over memory mechanisms is needed
-
-**Consider alternatives when:**
-- Dealing with very long sequences (>1000 tokens) → Transformers
-- Need maximum parallelization → Transformers or CNNs
-- Working with limited training data → Simpler models
-- Computational efficiency is critical → GRU or 1D CNN
+### When to Use Alternatives
+- **Transformer**: Long sequences, parallel processing
+- **CNN**: Local patterns, faster training
+- **GRU**: Simpler architecture, faster training
 
 ## Best Practices
 
-### 1. Data Preparation
-```python
-# Proper sequence padding and truncation
-sequences = pad_sequences(sequences, maxlen=max_length, 
-                         padding='post', truncating='post')
+### Model Design
+1. **Start Simple**: Begin with basic LSTM, add complexity gradually
+2. **Bidirectional**: Use for tasks requiring full context
+3. **Attention**: Add for longer sequences
+4. **Regularization**: Dropout, weight decay
 
-# Use appropriate batch sizes
-batch_size = 32  # Good balance for most tasks
-```
+### Training
+1. **Data Preprocessing**: Proper tokenization and padding
+2. **Gradient Clipping**: Clip gradients to prevent exploding
+3. **Learning Rate**: Start with 0.001, use scheduling
+4. **Batch Size**: 32-128 for most tasks
 
-### 2. Model Architecture
-```python
-# Use dropout for regularization
-LSTM(units, dropout=0.3, recurrent_dropout=0.3)
-
-# Consider bidirectional processing
-Bidirectional(LSTM(units, return_sequences=True))
-```
-
-### 3. Training Optimization
-```python
-# Use learning rate scheduling
-from tensorflow.keras.callbacks import ReduceLROnPlateau
-
-lr_scheduler = ReduceLROnPlateau(
-    monitor='val_loss', factor=0.5, patience=3, min_lr=1e-7
-)
-
-# Early stopping to prevent overfitting
-from tensorflow.keras.callbacks import EarlyStopping
-
-early_stopping = EarlyStopping(
-    monitor='val_loss', patience=5, restore_best_weights=True
-)
-```
-
-### 4. Hyperparameter Tuning
-- **Hidden Dimension**: Start with 128-512, scale with data complexity
-- **Number of Layers**: 1-3 layers for most tasks
-- **Dropout Rate**: 0.2-0.5 depending on overfitting
-- **Learning Rate**: 0.001-0.01, use scheduling
-- **Batch Size**: 16-128, balance between stability and speed
+### Evaluation
+1. **Cross-validation**: Multiple splits for robust evaluation
+2. **Metrics**: Choose appropriate metrics for task
+3. **Error Analysis**: Analyze failure cases
+4. **Language-specific**: Consider language-specific evaluation
 
 ## Resources and Further Reading
 
-### Foundational Papers
-1. **Hochreiter, S., & Schmidhuber, J. (1997)**. "Long short-term memory." *Neural Computation*, 9(8), 1735-1780.
-2. **Graves, A. (2013)**. "Generating sequences with recurrent neural networks." *arXiv preprint*.
-3. **Sutskever, I., et al. (2014)**. "Sequence to sequence learning with neural networks." *NIPS 2014*.
-
-### Implementation Resources
-- **Keras Documentation**: https://keras.io/api/layers/recurrent_layers/lstm/
-- **TensorFlow LSTM Guide**: https://www.tensorflow.org/guide/keras/rnn
+### Documentation
+- **PyTorch LSTM**: https://pytorch.org/docs/stable/generated/torch.nn.LSTM.html
 - **Understanding LSTMs**: http://colah.github.io/posts/2015-08-Understanding-LSTMs/
 
 ### Practical Tutorials
-- **Text Classification with LSTM**: TensorFlow tutorials
-- **Language Modeling**: Keras examples
-- **Sequence-to-Sequence Models**: TensorFlow NMT tutorial
+- **Text Classification with LSTM**: PyTorch tutorials
+- **Language Modeling**: PyTorch examples
+- **Sequence-to-Sequence Models**: PyTorch NMT tutorial
 
 ### Advanced Topics
 - **LSTM Variants**: Exploring different gating mechanisms
 - **Attention Mechanisms**: Improving LSTM performance
 - **Transformer Comparison**: Understanding when to use each architecture
 
-This comprehensive guide provides both theoretical understanding and practical implementation knowledge for using LSTMs effectively in NLP applications.
+This comprehensive guide provides both theoretical understanding and practical PyTorch implementation knowledge for using LSTMs effectively in NLP applications.
