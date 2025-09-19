@@ -127,7 +127,7 @@ sorted_words = sorted(['apple', 'café', 'zebra'], key=collator.getSortKey)
 - Pre-trained transformer models (BERT, GPT, T5, etc.)
 - Easy-to-use pipelines for common NLP tasks
 - Model fine-tuning capabilities
-- Integration with PyTorch and TensorFlow
+- Primary integration with PyTorch (TensorFlow support available but not preferred)
 
 **Common Use Cases**:
 - Text classification
@@ -138,17 +138,27 @@ sorted_words = sorted(['apple', 'café', 'zebra'], key=collator.getSortKey)
 
 **Installation**: `pip install transformers`
 
-**Example**:
+**Example** (using PyTorch backend):
 ```python
-from transformers import pipeline
+from transformers import pipeline, AutoTokenizer, AutoModel
+import torch
 
-# Sentiment analysis
-classifier = pipeline("sentiment-analysis")
+# Sentiment analysis with PyTorch backend
+classifier = pipeline("sentiment-analysis", framework="pt")
 result = classifier("I love this new NLP library!")
 
-# Text generation
-generator = pipeline("text-generation", model="gpt2")
+# Text generation with PyTorch backend
+generator = pipeline("text-generation", model="gpt2", framework="pt")
 generated = generator("The future of AI is", max_length=50, num_return_sequences=1)
+
+# Manual model loading with PyTorch
+tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
+model = AutoModel.from_pretrained("bert-base-uncased")
+
+# Vietnamese/English example
+text = "My name is John"  # English: "My name is John" → Vietnamese: "Tên tôi là John"
+inputs = tokenizer(text, return_tensors="pt")
+outputs = model(**inputs)
 ```
 
 ### PyTorch
@@ -186,8 +196,10 @@ class SimpleRNN(nn.Module):
         return self.fc(output[:, -1, :])
 ```
 
-### TensorFlow
+### TensorFlow (Optional - Use PyTorch When Possible)
 **Purpose**: End-to-end open source platform for machine learning.
+
+**Note**: This repository primarily uses PyTorch. TensorFlow is only used when PyTorch cannot implement the required functionality.
 
 **Key Features**:
 - Static and dynamic computational graphs
@@ -196,15 +208,15 @@ class SimpleRNN(nn.Module):
 - Extensive ecosystem (TensorFlow Extended, TensorFlow Lite, etc.)
 
 **Common Use Cases**:
-- Large-scale machine learning
-- Production deployments
-- Deep learning research
-- Mobile and edge deployment
+- Large-scale machine learning (when PyTorch is insufficient)
+- Specific pre-trained models only available in TensorFlow
+- Legacy code compatibility
 
-**Installation**: `pip install tensorflow`
+**Installation**: `pip install tensorflow` (only if needed)
 
-**Example**:
+**Example** (use PyTorch equivalent when possible):
 ```python
+# TensorFlow example (prefer PyTorch alternatives)
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Embedding, LSTM, Dense
@@ -219,8 +231,10 @@ model = Sequential([
 model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 ```
 
-### Keras
+### Keras (Deprecated in Favor of PyTorch)
 **Purpose**: High-level neural networks API, now integrated with TensorFlow.
+
+**Note**: This repository uses PyTorch as the primary framework. Keras examples are included only for reference or when PyTorch alternatives are not available.
 
 **Key Features**:
 - User-friendly API for building neural networks
@@ -229,15 +243,14 @@ model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accur
 - Easy prototyping
 
 **Common Use Cases**:
-- Rapid prototyping of deep learning models
-- Educational purposes
-- Building neural networks with minimal code
-- Transfer learning
+- Legacy code compatibility
+- Specific functionality not available in PyTorch
 
 **Installation**: Included with TensorFlow (`pip install tensorflow`)
 
-**Example**:
+**Example** (prefer PyTorch equivalents):
 ```python
+# Keras example (prefer PyTorch alternatives)
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout
 from tensorflow.keras.optimizers import Adam
@@ -536,9 +549,21 @@ fig.show()
 
 ## Installation Guide
 
-### All Libraries at Once
+### All Libraries at Once (PyTorch-Focused)
 ```bash
-pip install nltk spacy regex pyicu transformers torch tensorflow scikit-learn pandas numpy matplotlib seaborn plotly
+pip install nltk spacy regex pyicu transformers torch torchvision torchaudio scikit-learn pandas numpy matplotlib seaborn plotly
+
+# Download spaCy model
+python -m spacy download en_core_web_sm
+
+# Download NLTK data
+python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords'); nltk.download('wordnet')"
+```
+
+### Alternative with TensorFlow (Only if Required)
+```bash
+# Install TensorFlow only if PyTorch cannot meet your needs
+pip install nltk spacy regex pyicu transformers torch torchvision torchaudio tensorflow scikit-learn pandas numpy matplotlib seaborn plotly
 
 # Download spaCy model
 python -m spacy download en_core_web_sm
@@ -558,8 +583,8 @@ source nlp_env/bin/activate
 # Activate (Windows)
 nlp_env\Scripts\activate
 
-# Install libraries
+# Install libraries (PyTorch-focused)
 pip install -r requirements.txt
 ```
 
-This comprehensive overview should help you choose the right tools for your NLP projects and understand how they work together in the modern NLP ecosystem.
+This comprehensive overview should help you choose the right tools for your NLP projects and understand how they work together in the modern PyTorch-focused NLP ecosystem.
