@@ -372,36 +372,6 @@ make clean
 4. **Real data**: Try the techniques on your own text data
 5. **Documentation**: Refer to spaCy's official documentation
 
-## Recent Updates & Fixes
-
-### ✅ Latest Improvements
-- **Fixed Advanced Features Notebook**: Resolved custom tokenizer and component registration issues
-- **Added Makefile Support**: Automated setup and testing with `make` commands
-- **Enhanced Error Handling**: Better error messages and validation
-- **Improved Documentation**: Updated setup instructions and usage examples
-- **Tested All Notebooks**: All 6 notebooks now execute successfully without errors
-
-### 🔧 Technical Fixes
-- **Custom Tokenizer**: Fixed `Tokenizer` constructor to use `infix_finditer` parameter
-- **Component Registration**: Added proper `@Language.component` decorators
-- **Dependency Management**: Automated spaCy model download in setup process
-- **Error Detection**: Added comprehensive error checking in Makefile
-
-## Troubleshooting
-
-### Common Issues
-- **Model not found**: Run `make setup-env` to automatically download required models
-- **Memory issues**: Use smaller models for large texts
-- **Performance**: Consider using GPU acceleration for large datasets
-- **Language support**: Some features work better with certain languages
-- **Notebook errors**: Run `make test-notebooks` to verify all notebooks work
-
-### Getting Help
-- Check spaCy's official documentation: https://spacy.io/
-- Join the spaCy community forum
-- Review the code examples in each notebook
-- Practice with different text types and languages
-- Use `make help` to see all available commands
 
 ## Next Steps
 
