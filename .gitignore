@@ -36,3 +36,6 @@ Thumbs.db
 # Large dataset files (optional - uncomment if you don't want to commit large files)
 # data/*/large.txt
 # data/*/medium.txt
+
+# Project specific ignores
+Prompt.md
