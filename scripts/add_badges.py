@@ -29,14 +29,14 @@ def create_badge_line(notebook_path, github_repo="vuhung16au/nlp-learning-journe
     kaggle_url = f"https://kaggle.com/kernels/welcome?src=https://github.com/{github_repo}/blob/{branch}/{url_path}"
     sagemaker_url = f"https://studiolab.sagemaker.aws/import/github/{github_repo}/blob/{branch}/{url_path}"
     
-    # Create badge markdown with proper spacing
-    badges = [
+    # Create badge lines - each badge on its own line
+    badge_lines = [
         f"[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)]({colab_url})",
         f"[![Open In Kaggle](https://kaggle.com/static/images/open-in-kaggle.svg)]({kaggle_url})",
         f"[![Open In SageMaker Studio Lab](https://studiolab.sagemaker.aws/studiolab.svg)]({sagemaker_url})"
     ]
     
-    return '\n'.join(badges)
+    return badge_lines
 
 
 def add_badges_to_notebook(notebook_path, github_repo="vuhung16au/nlp-learning-journey", branch="main"):
@@ -71,10 +71,11 @@ def add_badges_to_notebook(notebook_path, github_repo="vuhung16au/nlp-learning-j
     source = ''.join(cell['source'])
     
     # Get relative path from repo root
-    rel_path = os.path.relpath(notebook_path, start=os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    repo_root = Path(__file__).parent.parent
+    rel_path = os.path.relpath(notebook_path, start=repo_root)
     
     # Create badge lines
-    badge_text = create_badge_line(rel_path, github_repo, branch)
+    badge_lines = create_badge_line(rel_path, github_repo, branch)
     
     # Check if badges already exist
     has_colab = 'Open In Colab' in source or 'Open in Colab' in source
@@ -116,14 +117,20 @@ def add_badges_to_notebook(notebook_path, github_repo="vuhung16au/nlp-learning-j
         result_lines.append(line)
         if i == title_idx:
             result_lines.append('')
-            result_lines.append(badge_text)
+            # Add each badge on its own line
+            result_lines.extend(badge_lines)
     
     # Reconstruct source
     new_source = '\n'.join(result_lines)
     
     # Update cell source (as list of strings with newlines)
-    cell['source'] = [line + '\n' if i < len(result_lines) - 1 else line 
-                      for i, line in enumerate(result_lines)]
+    # Split each line into separate array elements for better readability in JSON
+    cell['source'] = []
+    for i, line in enumerate(result_lines):
+        if i < len(result_lines) - 1:
+            cell['source'].append(line + '\n')
+        else:
+            cell['source'].append(line)
     
     # Write back
     with open(notebook_path, 'w', encoding='utf-8') as f:
